@@ -17,7 +17,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Crumbly",
+  title: "Doit",
   description: "Finanzas simplificadas para pastelerías y reposterías",
 };
 

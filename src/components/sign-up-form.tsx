@@ -126,7 +126,7 @@ export function SignUpForm() {
             {/* Logo image */}
             <Image
               src="/brand/hero-logo.png"
-              alt="Crumbly"
+              alt="Doit"
               width={400}
               height={100}
             />

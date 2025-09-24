@@ -1,6 +1,31 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
+// Define route types for better organization
+const authRoutes = [
+  "/auth/sign-in",
+  "/auth/sign-up",
+  "/auth/forgot-password",
+  "/auth/reset-password",
+  "/auth/confirm",
+  "/auth/error",
+  "/auth/sign-up-success",
+];
+
+const protectedRoutes = ["/dashboard"];
+
+function isAuthRoute(pathname: string): boolean {
+  return authRoutes.some(
+    (route) => pathname === route || pathname.startsWith(`${route}/`),
+  );
+}
+
+function isProtectedRoute(pathname: string): boolean {
+  return protectedRoutes.some(
+    (route) => pathname === route || pathname.startsWith(`${route}/`),
+  );
+}
+
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({
     request,
@@ -40,17 +65,29 @@ export async function updateSession(request: NextRequest) {
   const { data } = await supabase.auth.getClaims();
   const user = data?.claims;
 
-  if (
-    request.nextUrl.pathname !== "/" &&
-    !user &&
-    !request.nextUrl.pathname.startsWith("/sign-in") &&
-    !request.nextUrl.pathname.startsWith("/auth") &&
-    !request.nextUrl.pathname.startsWith("/legal")
-  ) {
-    // no user, potentially respond by redirecting the user to the sign in page
-    const url = request.nextUrl.clone();
-    url.pathname = "/auth/sign-in";
-    return NextResponse.redirect(url);
+  const pathname = request.nextUrl.pathname;
+  const searchParams = request.nextUrl.searchParams;
+  const isAuthenticated = !!user;
+
+  // Handle authentication logic
+  if (isAuthenticated) {
+    // If user is authenticated and tries to access auth routes, redirect to dashboard
+    if (isAuthRoute(pathname)) {
+      const redirectTo = searchParams.get("redirect") || "/dashboard";
+      const url = request.nextUrl.clone();
+      url.pathname = redirectTo;
+      url.search = ""; // Clear search params
+      return NextResponse.redirect(url);
+    }
+  } else {
+    // If user is not authenticated and tries to access protected routes
+    if (isProtectedRoute(pathname)) {
+      const url = request.nextUrl.clone();
+      url.pathname = "/auth/sign-in";
+      // Preserve the intended destination for redirect after login
+      url.searchParams.set("redirect", pathname);
+      return NextResponse.redirect(url);
+    }
   }
 
   // IMPORTANT: You *must* return the supabaseResponse object as it is.

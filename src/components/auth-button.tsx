@@ -1,15 +1,21 @@
+"use client";
+
 import Link from "next/link";
 import { Button } from "./ui/button";
-import { createClient } from "@/lib/supabase/server";
 import { LogoutButton } from "./logout-button";
+import { useAuthContext } from "./auth-provider";
 
-export async function AuthButton() {
-  const supabase = await createClient();
+export function AuthButton() {
+  const { user, loading } = useAuthContext();
 
-  // You can also use getUser() which will be slower.
-  const { data } = await supabase.auth.getClaims();
-
-  const user = data?.claims;
+  if (loading) {
+    return (
+      <div className="flex gap-2">
+        <div className="h-8 w-16 bg-gray-200 animate-pulse rounded" />
+        <div className="h-8 w-16 bg-gray-200 animate-pulse rounded" />
+      </div>
+    );
+  }
 
   return user ? (
     <div className="flex gap-2">

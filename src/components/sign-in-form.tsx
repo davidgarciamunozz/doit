@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 
 export function SignInForm() {
@@ -16,6 +16,10 @@ export function SignInForm() {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
+  const searchParams = useSearchParams();
+
+  // Get redirect URL from search params, default to dashboard
+  const redirectTo = searchParams.get("redirect") || "/dashboard";
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,7 +33,10 @@ export function SignInForm() {
         password,
       });
       if (error) throw error;
-      router.push("/dashboard");
+
+      // Redirect to the intended page or dashboard
+      router.push(redirectTo);
+      router.refresh(); // Refresh to update the auth state
     } catch (error: unknown) {
       setError(error instanceof Error ? error.message : "An error occurred");
     } finally {

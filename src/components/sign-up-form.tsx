@@ -1,25 +1,15 @@
 "use client";
 
-import { cn } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import Image from "next/image";
 
-export function SignUpForm({
-  className,
-  ...props
-}: React.ComponentPropsWithoutRef<"div">) {
+export function SignUpForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [repeatPassword, setRepeatPassword] = useState("");
@@ -57,13 +47,15 @@ export function SignUpForm({
   };
 
   return (
-    <div className={cn("flex flex-col gap-6", className)} {...props}>
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-2xl">Sign up</CardTitle>
-          <CardDescription>Create a new account</CardDescription>
-        </CardHeader>
-        <CardContent>
+    <div className="min-h-screen min-w-screen flex">
+      {/* Left side - Login Form */}
+      <div className="flex-1 flex items-center justify-center bg-white px-8">
+        <div className="w-full max-w-md space-y-8">
+          <div className="space-y-2">
+            <h1 className="text-3xl font-bold text-gray-900">Sign Up</h1>
+            <p className="text-gray-600">Create a new account</p>
+          </div>
+
           <form onSubmit={handleSignUp}>
             <div className="flex flex-col gap-6">
               <div className="grid gap-2">
@@ -102,7 +94,11 @@ export function SignUpForm({
                 />
               </div>
               {error && <p className="text-sm text-red-500">{error}</p>}
-              <Button type="submit" className="w-full" disabled={isLoading}>
+              <Button
+                type="submit"
+                className="w-full bg-[#D3F36B] hover:bg-lime-300 text-gray-900 font-medium py-3 rounded-lg"
+                disabled={isLoading}
+              >
                 {isLoading ? "Creating an account..." : "Sign up"}
               </Button>
             </div>
@@ -116,8 +112,23 @@ export function SignUpForm({
               </Link>
             </div>
           </form>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
+
+      {/* Right side - Brand/Logo */}
+      <div className="flex-1 bg-[#D3F36B] flex items-center justify-center">
+        <div className="text-center">
+          <div className="flex items-center justify-center space-x-2">
+            {/* Logo image */}
+            <Image
+              src="/brand/hero-logo.png"
+              alt="Crumbly"
+              width={400}
+              height={100}
+            />
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

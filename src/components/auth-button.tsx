@@ -29,7 +29,7 @@ export function AuthButton() {
       <Button asChild size="sm" variant={"outline"}>
         <Link href="/auth/sign-in">Sign in</Link>
       </Button>
-      <Button asChild size="sm" variant={"default"}>
+      <Button asChild size="sm" variant={"doit_green"}>
         <Link href="/auth/sign-up">Sign up</Link>
       </Button>
     </div>

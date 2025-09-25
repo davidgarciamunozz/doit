@@ -5,6 +5,7 @@ import { AuthProvider } from "@/components/auth-provider";
 import { Footer } from "@/components/footer";
 import { Header } from "@/components/header";
 import "./globals.css";
+import { gilroy } from "./fonts";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -29,7 +30,7 @@ export default function RootLayout({
   return (
     <html lang="es" suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col items-center`}
+        className={`${geistSans.variable} ${geistMono.variable} ${gilroy.variable} antialiased min-h-screen font-sans flex flex-col items-center`}
       >
         <ThemeProvider
           attribute="class"

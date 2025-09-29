@@ -1,6 +1,6 @@
 "use client";
 
-import OrderCard, { OrderStatus } from "@/components/dashboard/OrderCard";
+import OrderCard, { OrderStatus } from "@/components/dashboard/order-card";
 
 interface Order {
   id: string;

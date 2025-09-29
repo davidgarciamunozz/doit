@@ -1,25 +1,18 @@
 "use client";
 
 import {
-  BarChart2,
-  Receipt,
-  Building2,
-  CreditCard,
   Folder,
-  Wallet,
-  Users2,
-  Shield,
-  MessagesSquare,
-  Video,
   Settings,
   HelpCircle,
   Menu,
+  User,
+  Package,
+  BookOpen,
 } from "lucide-react";
 
 import { Home } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
-import Image from "next/image";
 
 export default function Sidebar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -66,20 +59,6 @@ export default function Sidebar() {
             `}
       >
         <div className="h-full flex flex-col">
-          <Link
-            href="/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="h-16 px-6 flex items-center border-b border-gray-200 dark:border-[#1F1F23]"
-          >
-            <Image
-              src="/brand/hero-logo.png"
-              alt="Doit"
-              width={130}
-              height={50}
-            />
-          </Link>
-
           <div className="flex-1 overflow-y-auto py-4 px-4">
             <div className="space-y-6">
               <div>
@@ -90,19 +69,22 @@ export default function Sidebar() {
                   <NavItem href="#" icon={Home}>
                     Dashboard
                   </NavItem>
-                  <NavItem href="#" icon={BarChart2}>
-                    Analytics
+                  <NavItem href="#" icon={BookOpen}>
+                    Recipes
                   </NavItem>
-                  <NavItem href="#" icon={Building2}>
-                    Organization
+                  <NavItem href="#" icon={Package}>
+                    Orders
                   </NavItem>
                   <NavItem href="#" icon={Folder}>
-                    Projects
+                    Inventory
+                  </NavItem>
+                  <NavItem href="#" icon={User}>
+                    Profile
                   </NavItem>
                 </div>
               </div>
 
-              <div>
+              {/* <div>
                 <div className="px-3 mb-2 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
                   Finance
                 </div>
@@ -117,9 +99,9 @@ export default function Sidebar() {
                     Payments
                   </NavItem>
                 </div>
-              </div>
+              </div> */}
 
-              <div>
+              {/* <div>
                 <div className="px-3 mb-2 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
                   Team
                 </div>
@@ -137,7 +119,7 @@ export default function Sidebar() {
                     Meetings
                   </NavItem>
                 </div>
-              </div>
+              </div> */}
             </div>
           </div>
 

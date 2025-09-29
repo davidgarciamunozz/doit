@@ -1,8 +1,11 @@
 // app/components/dashboard/StockCard.tsx
 "use client";
 
-import { MoreVertical } from "lucide-react";
 import * as React from "react";
+import { MoreVertical } from "lucide-react";
+import ItemActionsMenu, {
+  ItemAction,
+} from "@/components/global/item-actions-menu";
 
 type InventoryStatus = "out-of-stock" | "low-stock" | "in-stock" | "shortage";
 
@@ -24,7 +27,11 @@ const pillByStatus: Record<InventoryStatus, string> = {
     "inline-flex items-center whitespace-nowrap rounded-full px-2.5 py-1 text-xs font-medium leading-none bg-pink-100 text-pink-700",
 };
 
-export default function StockCard() {
+type Props = {
+  actions: ItemAction[]; // 👈 se las pasará la page
+};
+
+export default function StockCard({ actions }: Props) {
   const item = {
     name: "Brown sugar",
     currentQuantity: -500, // g
@@ -44,13 +51,23 @@ export default function StockCard() {
         <h3 className="text-[18px] font-semibold leading-6 text-gray-900">
           {item.name}
         </h3>
-        <button
-          type="button"
-          className="rounded-md p-1 text-gray-400 hover:bg-gray-50 hover:text-gray-600"
-          aria-label="More options"
-        >
-          <MoreVertical className="h-5 w-5" />
-        </button>
+
+        {/* ✅ Opción B: usamos TU botón como trigger */}
+        <ItemActionsMenu
+          actions={actions}
+          align="end"
+          side="bottom"
+          trigger={
+            <button
+              type="button"
+              className="rounded-md p-1 text-gray-400 hover:bg-gray-50 hover:text-gray-600"
+              aria-label="More options"
+            >
+              <MoreVertical className="h-5 w-5" />
+            </button>
+          }
+        />
+        {/* ✅ Opción A (alternativa): <ItemActionsMenu actions={actions} /> */}
       </div>
 
       <div className="mt-2 space-y-1.5">

@@ -66,7 +66,7 @@ export default function RecipesPage() {
 
   return (
     <Layout>
-      <div className="p-6 space-y-6 min-h-screen bg-[#F7F7F6]">
+      <div className="p-6 space-y-6 min-h-screen bg-background">
         {/* Encabezado con barra de búsqueda y botón */}
         <div className="flex items-center justify-between">
           <div className="flex-1 max-w-md">

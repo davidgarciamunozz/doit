@@ -18,7 +18,7 @@ export default function RecipeCard({
   preparationTime,
 }: RecipeCardProps) {
   return (
-    <div className="relative bg-[#FCFDFC] rounded-2xl shadow-md p-5 w-full max-w-sm ">
+    <div className="relative bg-background/80 rounded-2xl shadow-md p-5 w-full max-w-sm ">
       {/* Botón de opciones (3 puntitos) */}
       <button className="absolute top-4 right-4 text-gray-800 hover:text-gray-600">
         <MoreVertical size={20} />

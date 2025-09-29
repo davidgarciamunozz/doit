@@ -48,9 +48,7 @@ export default function InventoryStatusCard({
         {missing && <p className="mt-1 text-sm text-gray-500">{missing}</p>}
       </div>
 
-      <span className={pillByStatus[status]}>
-        {statusLabel[status]}
-      </span>
+      <span className={pillByStatus[status]}>{statusLabel[status]}</span>
     </div>
   );
 }

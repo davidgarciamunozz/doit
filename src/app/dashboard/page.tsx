@@ -1,9 +1,9 @@
 // app/dashboard/page.tsx
 import Layout from "@/components/layout";
 import { createClient } from "@/lib/supabase/server";
-import InventoryStatusCard from "@/components/dashboard/InventoryStatusCard";
-import OrdersContainer from "@/components/dashboard/OrdersContainer";
-import WelcomeBanner from "@/components/dashboard/WelcomeBanner";
+import InventoryStatusCard from "@/components/dashboard/Inventory-status-card";
+import OrdersContainer from "@/components/dashboard/orders-container";
+import WelcomeBanner from "@/components/dashboard/welcome-banner";
 
 export default async function DashboardPage() {
   const supabase = await createClient();

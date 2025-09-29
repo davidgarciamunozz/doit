@@ -23,7 +23,7 @@ export default function Layout({ children }: LayoutProps) {
 
   return (
     <div
-      className={`flex h-screen w-full max-w-5xl ${theme === "dark" ? "dark" : ""}`}
+      className={`flex h-screen w-full max-w-7xl ${theme === "dark" ? "dark" : ""}`}
     >
       <Sidebar />
       <div className="w-full flex flex-1 flex-col">

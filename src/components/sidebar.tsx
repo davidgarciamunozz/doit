@@ -66,19 +66,22 @@ export default function Sidebar() {
                   Overview
                 </div>
                 <div className="space-y-1">
-                  <NavItem href="#" icon={Home}>
+                  <NavItem href="/dashboard" icon={Home}>
                     Dashboard
                   </NavItem>
-                  <NavItem href="#" icon={BookOpen}>
+                  <NavItem href="/dashboard/recipes" icon={BookOpen}>
                     Recipes
                   </NavItem>
-                  <NavItem href="#" icon={Package}>
+                  <NavItem href="/dashboard/orders" icon={Package}>
                     Orders
                   </NavItem>
-                  <NavItem href="#" icon={Folder}>
+                  <NavItem
+                    href="/dashboard/inventory/ingredients"
+                    icon={Folder}
+                  >
                     Inventory
                   </NavItem>
-                  <NavItem href="#" icon={User}>
+                  <NavItem href="/dashboard/profile" icon={User}>
                     Profile
                   </NavItem>
                 </div>

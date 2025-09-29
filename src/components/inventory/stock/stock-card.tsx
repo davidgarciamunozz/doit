@@ -55,8 +55,6 @@ export default function StockCard({ actions }: Props) {
         {/* ✅ Opción B: usamos TU botón como trigger */}
         <ItemActionsMenu
           actions={actions}
-          align="end"
-          side="bottom"
           trigger={
             <button
               type="button"

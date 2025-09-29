@@ -2,6 +2,7 @@ import RecipeCard from "@/components/recipes/recipe-card";
 import SearchBar from "@/components/global/search-bar";
 import AddButton from "@/components/buttons/add-button";
 import Layout from "@/components/layout";
+import Link from "next/link";
 
 export default function RecipesPage() {
   const recipes = [
@@ -65,13 +66,15 @@ export default function RecipesPage() {
 
   return (
     <Layout>
-      <div className="p-6 space-y-6  min-h-screen bg-[#F7F7F6] p-6">
+      <div className="p-6 space-y-6 min-h-screen bg-[#F7F7F6]">
         {/* Encabezado con barra de búsqueda y botón */}
         <div className="flex items-center justify-between">
           <div className="flex-1 max-w-md">
             <SearchBar />
           </div>
-          <AddButton label="Add new recipe" variant="primary" />
+          <Link href="/dashboard/recipes/new">
+            <AddButton label="Add new recipe" variant="primary" />
+          </Link>
         </div>
 
         {/* Grid de recetas */}

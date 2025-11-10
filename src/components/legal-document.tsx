@@ -40,15 +40,17 @@ const LegalDocument: React.FC<LegalDocumentProps> = ({ filePath, title }) => {
   return (
     <Card className="w-full max-w-4xl mx-auto my-8">
       <CardHeader>
-        <h1 className="text-2xl font-bold text-center">{title}</h1>
+        <h1 className="text-2xl font-bold text-center text-card-foreground">
+          {title}
+        </h1>
       </CardHeader>
-      <CardContent className="prose prose-blue max-w-none min-h-[200px]">
+      <CardContent className="prose prose-blue dark:prose-invert max-w-none min-h-[200px] text-foreground">
         {loading ? (
           <div className="flex items-center justify-center h-[200px]">
-            <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+            <Loader2 className="w-8 h-8 animate-spin text-primary" />
           </div>
         ) : error ? (
-          <div className="text-center text-red-600 py-8">{error}</div>
+          <div className="text-center text-destructive py-8">{error}</div>
         ) : (
           <ReactMarkdown
             components={{

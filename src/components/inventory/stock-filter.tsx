@@ -11,7 +11,7 @@ import {
 export default function StockFilter() {
   return (
     <Select>
-      <SelectTrigger className="w-[180px] rounded-full border border-gray-200 bg-white">
+      <SelectTrigger className="w-[180px] rounded-full border border-border bg-background">
         <SelectValue placeholder="All" />
       </SelectTrigger>
       <SelectContent>

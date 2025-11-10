@@ -11,8 +11,8 @@ export function AuthButton() {
   if (loading) {
     return (
       <div className="flex gap-2">
-        <div className="h-8 w-16 bg-gray-200 animate-pulse rounded" />
-        <div className="h-8 w-16 bg-gray-200 animate-pulse rounded" />
+        <div className="h-8 w-16 bg-muted animate-pulse rounded" />
+        <div className="h-8 w-16 bg-muted animate-pulse rounded" />
       </div>
     );
   }

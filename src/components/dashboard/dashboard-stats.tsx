@@ -21,8 +21,10 @@ export default function DashboardStats({ stats }: DashboardStatsProps) {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-          <p className="text-gray-500 mt-1">Overview of your bakery business</p>
+          <h1 className="text-3xl font-bold text-foreground">Dashboard</h1>
+          <p className="text-muted-foreground mt-1">
+            Overview of your bakery business
+          </p>
         </div>
       </div>
 
@@ -67,16 +69,16 @@ export default function DashboardStats({ stats }: DashboardStatsProps) {
       {/* Two Column Layout */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Top Used Ingredients */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
+        <div className="bg-card rounded-2xl shadow-sm border border-border p-6">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-gray-900">
+            <h2 className="text-lg font-semibold text-card-foreground">
               Most Used Ingredients
             </h2>
-            <TrendingUp className="h-5 w-5 text-gray-400" />
+            <TrendingUp className="h-5 w-5 text-muted-foreground" />
           </div>
 
           {stats.topUsedIngredients.length === 0 ? (
-            <div className="text-center py-8 text-gray-500">
+            <div className="text-center py-8 text-muted-foreground">
               <p>No ingredient data yet</p>
               <p className="text-sm mt-2">
                 Start adding ingredients to your recipes
@@ -87,17 +89,17 @@ export default function DashboardStats({ stats }: DashboardStatsProps) {
               {stats.topUsedIngredients.map((ingredient, index) => (
                 <div
                   key={index}
-                  className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+                  className="flex items-center justify-between p-3 bg-muted rounded-lg"
                 >
                   <div className="flex items-center gap-3">
-                    <span className="text-sm font-medium text-gray-500">
+                    <span className="text-sm font-medium text-muted-foreground">
                       #{index + 1}
                     </span>
                     <div>
-                      <p className="font-medium text-gray-900">
+                      <p className="font-medium text-card-foreground">
                         {ingredient.name}
                       </p>
-                      <p className="text-xs text-gray-500">
+                      <p className="text-xs text-muted-foreground">
                         Used in {ingredient.count} recipe
                         {ingredient.count !== 1 ? "s" : ""}
                       </p>
@@ -111,21 +113,21 @@ export default function DashboardStats({ stats }: DashboardStatsProps) {
         </div>
 
         {/* Recent Recipes */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
+        <div className="bg-card rounded-2xl shadow-sm border border-border p-6">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-gray-900">
+            <h2 className="text-lg font-semibold text-card-foreground">
               Recent Recipes
             </h2>
-            <Clock className="h-5 w-5 text-gray-400" />
+            <Clock className="h-5 w-5 text-muted-foreground" />
           </div>
 
           {stats.recentRecipes.length === 0 ? (
-            <div className="text-center py-8 text-gray-500">
+            <div className="text-center py-8 text-muted-foreground">
               <p>No recipes yet</p>
               <p className="text-sm mt-2">
                 <Link
                   href="/dashboard/recipes/new"
-                  className="text-blue-600 hover:underline"
+                  className="text-primary hover:underline"
                 >
                   Create your first recipe
                 </Link>
@@ -136,20 +138,22 @@ export default function DashboardStats({ stats }: DashboardStatsProps) {
               {stats.recentRecipes.map((recipe) => (
                 <div
                   key={recipe.id}
-                  className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+                  className="flex items-center justify-between p-3 bg-muted rounded-lg"
                 >
                   <div>
-                    <p className="font-medium text-gray-900">{recipe.title}</p>
-                    <p className="text-xs text-gray-500">
+                    <p className="font-medium text-card-foreground">
+                      {recipe.title}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
                       {recipe.ingredient_count} ingredient
                       {recipe.ingredient_count !== 1 ? "s" : ""}
                     </p>
                   </div>
                   <div className="text-right">
-                    <p className="text-sm font-semibold text-gray-900">
+                    <p className="text-sm font-semibold text-card-foreground">
                       ${recipe.calculated_cost.toFixed(2)}
                     </p>
-                    <p className="text-xs text-gray-500">Cost</p>
+                    <p className="text-xs text-muted-foreground">Cost</p>
                   </div>
                 </div>
               ))}
@@ -160,10 +164,10 @@ export default function DashboardStats({ stats }: DashboardStatsProps) {
 
       {/* Stock Alerts */}
       {stats.stockAlerts.length > 0 && (
-        <div className="bg-orange-50 rounded-2xl border border-orange-200 p-6">
+        <div className="bg-orange-50 dark:bg-orange-950/20 rounded-2xl border border-orange-200 dark:border-orange-800 p-6">
           <div className="flex items-center gap-2 mb-4">
-            <AlertTriangle className="h-5 w-5 text-orange-600" />
-            <h2 className="text-lg font-semibold text-gray-900">
+            <AlertTriangle className="h-5 w-5 text-orange-600 dark:text-orange-500" />
+            <h2 className="text-lg font-semibold text-foreground">
               Stock Alerts
             </h2>
           </div>
@@ -172,14 +176,14 @@ export default function DashboardStats({ stats }: DashboardStatsProps) {
             {stats.stockAlerts.map((alert, index) => (
               <div
                 key={index}
-                className="bg-white rounded-lg p-4 border border-orange-200"
+                className="bg-card rounded-lg p-4 border border-orange-200 dark:border-orange-800"
               >
                 <div className="flex items-start justify-between">
                   <div>
-                    <p className="font-medium text-gray-900">
+                    <p className="font-medium text-card-foreground">
                       {alert.ingredient_name}
                     </p>
-                    <p className="text-sm text-gray-600 mt-1">
+                    <p className="text-sm text-muted-foreground mt-1">
                       {alert.current_quantity > 0
                         ? `${alert.current_quantity} ${alert.unit} left`
                         : alert.current_quantity === 0
@@ -196,7 +200,7 @@ export default function DashboardStats({ stats }: DashboardStatsProps) {
           <div className="mt-4 text-center">
             <Link
               href="/dashboard/inventory/ingredients"
-              className="text-sm text-orange-600 hover:text-orange-700 font-medium hover:underline"
+              className="text-sm text-orange-600 dark:text-orange-400 hover:text-orange-700 dark:hover:text-orange-300 font-medium hover:underline"
             >
               View all ingredients →
             </Link>
@@ -206,13 +210,13 @@ export default function DashboardStats({ stats }: DashboardStatsProps) {
 
       {/* Empty State */}
       {stats.totalRecipes === 0 && stats.totalIngredients === 0 && (
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-12 text-center">
+        <div className="bg-card rounded-2xl shadow-sm border border-border p-12 text-center">
           <div className="max-w-md mx-auto">
-            <ChefHat className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">
+            <ChefHat className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+            <h3 className="text-xl font-semibold text-card-foreground mb-2">
               Welcome to your Dashboard!
             </h3>
-            <p className="text-gray-500 mb-6">
+            <p className="text-muted-foreground mb-6">
               Start by adding ingredients to your inventory and creating your
               first recipe.
             </p>
@@ -249,18 +253,20 @@ interface StatCardProps {
 function StatCard({ title, value, icon, bgColor, link, alert }: StatCardProps) {
   const content = (
     <div
-      className={`${bgColor} rounded-2xl p-6 ${link ? "cursor-pointer hover:shadow-md transition-shadow" : ""}`}
+      className={`${bgColor} dark:bg-card rounded-2xl p-6 border border-border ${link ? "cursor-pointer hover:shadow-md transition-shadow" : ""}`}
     >
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-sm font-medium text-gray-600 mb-1">{title}</p>
+          <p className="text-sm font-medium text-muted-foreground mb-1">
+            {title}
+          </p>
           <p
-            className={`text-3xl font-bold ${alert ? "text-orange-600" : "text-gray-900"}`}
+            className={`text-3xl font-bold ${alert ? "text-orange-600 dark:text-orange-500" : "text-foreground"}`}
           >
             {value}
           </p>
         </div>
-        <div className="p-3 bg-white rounded-lg">{icon}</div>
+        <div className="p-3 bg-background dark:bg-muted rounded-lg">{icon}</div>
       </div>
     </div>
   );
@@ -270,10 +276,12 @@ function StatCard({ title, value, icon, bgColor, link, alert }: StatCardProps) {
 
 function StatusBadge({ status }: { status: string }) {
   const colors: Record<string, string> = {
-    available: "bg-green-100 text-green-700",
-    low: "bg-yellow-100 text-yellow-700",
-    unavailable: "bg-orange-100 text-orange-700",
-    shortage: "bg-red-100 text-red-700",
+    available:
+      "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400",
+    low: "bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400",
+    unavailable:
+      "bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400",
+    shortage: "bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400",
   };
 
   const labels: Record<string, string> = {
@@ -285,7 +293,7 @@ function StatusBadge({ status }: { status: string }) {
 
   return (
     <span
-      className={`px-2 py-1 text-xs font-medium rounded-full ${colors[status] || "bg-gray-100 text-gray-700"}`}
+      className={`px-2 py-1 text-xs font-medium rounded-full ${colors[status] || "bg-muted text-muted-foreground"}`}
     >
       {labels[status] || status}
     </span>

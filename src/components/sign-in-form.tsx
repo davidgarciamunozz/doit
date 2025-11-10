@@ -47,11 +47,11 @@ export function SignInForm() {
   return (
     <div className="min-h-screen min-w-screen flex">
       {/* Left side - Login Form */}
-      <div className="flex-1 flex items-center justify-center bg-white px-8">
+      <div className="flex-1 flex items-center justify-center bg-background px-8">
         <div className="w-full max-w-md space-y-8">
           <div className="space-y-2">
-            <h1 className="text-3xl font-bold text-gray-900">Sign In</h1>
-            <p className="text-gray-600">
+            <h1 className="text-3xl font-bold text-foreground">Sign In</h1>
+            <p className="text-muted-foreground">
               Enter your email below to sign in to your account
             </p>
           </div>
@@ -59,7 +59,7 @@ export function SignInForm() {
           <form onSubmit={handleSignIn} className="space-y-6">
             <div className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="email" className="text-gray-700 font-normal">
+                <Label htmlFor="email" className="text-foreground font-normal">
                   Email
                 </Label>
                 <Input
@@ -67,14 +67,17 @@ export function SignInForm() {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="border-0 border-b border-gray-300 rounded-none bg-transparent px-0 pb-2 focus:border-gray-600 focus:ring-0 shadow-none"
+                  className="border-0 border-b border-border rounded-none bg-transparent px-0 pb-2 focus:border-primary focus:ring-0 shadow-none"
                   placeholder="m@example.com"
                   required
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="password" className="text-gray-700 font-normal">
+                <Label
+                  htmlFor="password"
+                  className="text-foreground font-normal"
+                >
                   Password
                 </Label>
                 <Input
@@ -82,7 +85,7 @@ export function SignInForm() {
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="border-0 border-b border-gray-300 rounded-none bg-transparent px-0 pb-2 focus:border-gray-600 focus:ring-0 shadow-none"
+                  className="border-0 border-b border-border rounded-none bg-transparent px-0 pb-2 focus:border-primary focus:ring-0 shadow-none"
                   required
                 />
               </div>
@@ -91,28 +94,28 @@ export function SignInForm() {
             <div className="text-left">
               <Link
                 href="/auth/forgot-password"
-                className="text-gray-600 hover:text-gray-800 text-sm underline"
+                className="text-muted-foreground hover:text-foreground text-sm underline"
               >
                 Forgot Password?
               </Link>
             </div>
 
-            {error && <p className="text-sm text-red-500">{error}</p>}
+            {error && <p className="text-sm text-destructive">{error}</p>}
 
             <Button
               type="submit"
-              className="w-full bg-[#D3F36B] hover:bg-lime-300 text-gray-900 font-medium py-3 rounded-lg"
+              className="w-full bg-[#D3F36B] hover:bg-lime-300 text-gray-900 font-medium py-3 rounded-lg dark:bg-[#D3F36B] dark:hover:bg-lime-300 dark:text-gray-900"
               disabled={isLoading}
             >
               {isLoading ? "Signing in..." : "Sign In"}
             </Button>
           </form>
 
-          <div className="text-center text-sm text-gray-600">
+          <div className="text-center text-sm text-muted-foreground">
             {"Don't have an account? "}
             <Link
               href="/auth/sign-up"
-              className="text-gray-900 underline hover:text-gray-700"
+              className="text-foreground underline hover:text-muted-foreground"
             >
               Sign up
             </Link>

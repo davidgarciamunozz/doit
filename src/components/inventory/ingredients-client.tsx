@@ -141,7 +141,7 @@ export default function IngredientsClient({
     <>
       {/* Header */}
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-semibold">Ingredients</h2>
+        <h2 className="text-2xl font-semibold text-foreground">Ingredients</h2>
         <AddButton
           label="Add New Ingredient"
           variant="primary"
@@ -158,10 +158,10 @@ export default function IngredientsClient({
       {/* Empty State */}
       {initialIngredients.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-12 text-center">
-          <p className="text-gray-500 text-lg mb-4">
+          <p className="text-muted-foreground text-lg mb-4">
             No hay ingredientes todavía
           </p>
-          <p className="text-gray-400 text-sm mb-6">
+          <p className="text-muted-foreground/70 text-sm mb-6">
             Comienza agregando tu primer ingrediente
           </p>
           <AddButton
@@ -172,10 +172,10 @@ export default function IngredientsClient({
         </div>
       ) : filteredIngredients.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-12 text-center">
-          <p className="text-gray-500 text-lg mb-4">
+          <p className="text-muted-foreground text-lg mb-4">
             No se encontraron ingredientes
           </p>
-          <p className="text-gray-400 text-sm">
+          <p className="text-muted-foreground/70 text-sm">
             Intenta ajustar los filtros de búsqueda
           </p>
         </div>

@@ -6,8 +6,8 @@ import { revalidatePath } from "next/cache";
 import { setRecipeIngredients, RecipeIngredient } from "./recipe-ingredients";
 
 interface RecipeWithIngredients
-  extends Omit<Recipe, "id" | "created_at" | "updated_at"> {
-  recipe_ingredients?: RecipeIngredient[];
+  extends Omit<Recipe, "id" | "created_at" | "updated_at" | "user_id"> {
+  recipe_ingredients?: Omit<RecipeIngredient, "id">[];
 }
 
 export async function createRecipe(recipeData: RecipeWithIngredients) {

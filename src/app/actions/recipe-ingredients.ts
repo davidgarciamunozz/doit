@@ -68,25 +68,32 @@ export async function getRecipeIngredients(
       return [];
     }
 
-    interface SupabaseRecipeIngredient {
-      id: string;
-      ingredient_id: string;
-      quantity: number | string;
-      unit: string;
-      ingredients: {
-        name: string;
-      } | null;
-    }
+    if (!data) return [];
 
-    return (
-      (data as SupabaseRecipeIngredient[] | null)?.map((item) => ({
-        id: item.id,
-        ingredient_id: item.ingredient_id,
-        quantity: parseFloat(item.quantity.toString()),
-        unit: item.unit,
-        ingredient_name: item.ingredients?.name || "",
-      })) || []
-    );
+    return data.map((item: unknown) => {
+      const row = item as {
+        id: string;
+        ingredient_id: string;
+        quantity: number | string;
+        unit: string;
+        ingredients: { name: string } | { name: string }[] | null;
+      };
+
+      // Handle both single object and array responses from Supabase
+      const ingredientName = row.ingredients
+        ? Array.isArray(row.ingredients)
+          ? row.ingredients[0]?.name || ""
+          : row.ingredients.name
+        : "";
+
+      return {
+        id: row.id,
+        ingredient_id: row.ingredient_id,
+        quantity: parseFloat(row.quantity.toString()),
+        unit: row.unit,
+        ingredient_name: ingredientName,
+      };
+    });
   } catch (error) {
     console.error("Unexpected error fetching recipe ingredients:", error);
     return [];

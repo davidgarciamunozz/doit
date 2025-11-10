@@ -225,7 +225,7 @@ export async function canMakeRecipe(recipeId: string): Promise<{
         `
         quantity,
         unit,
-        ingredient:ingredients (
+        ingredient:ingredients!inner (
           id,
           name,
           stock_quantity,
@@ -252,12 +252,21 @@ export async function canMakeRecipe(recipeId: string): Promise<{
     }> = [];
 
     for (const ri of recipeIngredients) {
-      const ingredient = ri.ingredient as {
-        id: string;
-        name: string;
-        stock_quantity: number;
-        stock_unit: string;
-      } | null;
+      // Handle both array and object responses from Supabase
+      const ingredientData = Array.isArray(ri.ingredient)
+        ? ri.ingredient[0]
+        : ri.ingredient;
+
+      const ingredient = ingredientData as
+        | {
+            id: string;
+            name: string;
+            stock_quantity: number;
+            stock_unit: string;
+          }
+        | null
+        | undefined;
+
       if (!ingredient) continue;
 
       const needed = parseFloat(ri.quantity.toString());

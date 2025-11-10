@@ -53,11 +53,11 @@ export function SignUpForm() {
   return (
     <div className="min-h-screen min-w-screen flex">
       {/* Left side - Login Form */}
-      <div className="flex-1 flex items-center justify-center bg-white px-8">
+      <div className="flex-1 flex items-center justify-center bg-background px-8">
         <div className="w-full max-w-md space-y-8">
           <div className="space-y-2">
-            <h1 className="text-3xl font-bold text-gray-900">Sign Up</h1>
-            <p className="text-gray-600">Create a new account</p>
+            <h1 className="text-3xl font-bold text-foreground">Sign Up</h1>
+            <p className="text-muted-foreground">Create a new account</p>
           </div>
 
           <form onSubmit={handleSignUp}>
@@ -97,20 +97,20 @@ export function SignUpForm() {
                   onChange={(e) => setRepeatPassword(e.target.value)}
                 />
               </div>
-              {error && <p className="text-sm text-red-500">{error}</p>}
+              {error && <p className="text-sm text-destructive">{error}</p>}
               <Button
                 type="submit"
-                className="w-full bg-[#D3F36B] hover:bg-lime-300 text-gray-900 font-medium py-3 rounded-lg"
+                className="w-full bg-[#D3F36B] hover:bg-lime-300 text-gray-900 font-medium py-3 rounded-lg dark:bg-[#D3F36B] dark:hover:bg-lime-300 dark:text-gray-900"
                 disabled={isLoading}
               >
                 {isLoading ? "Creating an account..." : "Sign up"}
               </Button>
             </div>
-            <div className="mt-4 text-center text-sm">
+            <div className="mt-4 text-center text-sm text-muted-foreground">
               Already have an account?{" "}
               <Link
                 href="/auth/sign-in"
-                className="underline underline-offset-4"
+                className="underline underline-offset-4 text-foreground hover:text-muted-foreground"
               >
                 Sign In
               </Link>

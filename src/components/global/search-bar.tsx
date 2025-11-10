@@ -9,10 +9,10 @@ export default function SearchBar() {
       <Input
         type="text"
         placeholder="Search ingredient"
-        className="pr-10 rounded-lg border border-gray-200 bg-white"
+        className="pr-10 rounded-lg border border-border bg-background"
       />
       <Search
-        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400"
+        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground"
         size={18}
       />
     </div>

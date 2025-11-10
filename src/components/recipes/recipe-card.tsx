@@ -45,11 +45,11 @@ export default function RecipeCard({
       : ingredients;
 
   return (
-    <div className="relative bg-background/80 rounded-2xl shadow-md p-5 w-full max-w-sm ">
+    <div className="relative bg-card rounded-2xl shadow-md border border-border p-5 w-full max-w-sm ">
       {/* Botón de opciones (3 puntitos) */}
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <button className="absolute top-4 right-4 text-gray-800 hover:text-gray-600 focus:outline-none">
+          <button className="absolute top-4 right-4 text-muted-foreground hover:text-foreground focus:outline-none">
             <MoreVertical size={20} />
           </button>
         </DropdownMenuTrigger>
@@ -70,23 +70,25 @@ export default function RecipeCard({
       </DropdownMenu>
 
       {/* Título */}
-      <h2 className="text-lg font-bold mb-3">{title}</h2>
+      <h2 className="text-lg font-bold mb-3 text-card-foreground">{title}</h2>
 
       {/* Info */}
-      <p className="text-sm text-gray-500">
-        <span className="font-semibold">Ingredients: </span>
+      <p className="text-sm text-muted-foreground">
+        <span className="font-semibold text-foreground">Ingredients: </span>
         {displayIngredients || "No ingredients specified"}
       </p>
-      <p className="text-sm text-gray-500">
-        <span className="font-semibold">Portion size: </span>
+      <p className="text-sm text-muted-foreground">
+        <span className="font-semibold text-foreground">Portion size: </span>
         {portionSize}
       </p>
-      <p className="text-sm text-gray-500">
-        <span className="font-semibold">Price: </span>
+      <p className="text-sm text-muted-foreground">
+        <span className="font-semibold text-foreground">Price: </span>
         {price}
       </p>
-      <p className="text-sm text-gray-500">
-        <span className="font-semibold">Preparation time: </span>
+      <p className="text-sm text-muted-foreground">
+        <span className="font-semibold text-foreground">
+          Preparation time:{" "}
+        </span>
         {preparationTime}
       </p>
     </div>

@@ -24,8 +24,10 @@ export default async function RecipesPage() {
         {/* Grid de recetas */}
         {recipes.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-12 text-center">
-            <p className="text-gray-500 text-lg mb-4">No hay recetas todavía</p>
-            <p className="text-gray-400 text-sm mb-6">
+            <p className="text-muted-foreground text-lg mb-4">
+              No hay recetas todavía
+            </p>
+            <p className="text-muted-foreground/70 text-sm mb-6">
               Comienza agregando tu primera receta
             </p>
             <Link href="/dashboard/recipes/new">

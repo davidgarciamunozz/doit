@@ -2,7 +2,6 @@
 
 import type { ReactNode } from "react";
 import Sidebar from "./sidebar";
-import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 
 interface LayoutProps {
@@ -10,7 +9,6 @@ interface LayoutProps {
 }
 
 export default function Layout({ children }: LayoutProps) {
-  const { theme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -22,12 +20,10 @@ export default function Layout({ children }: LayoutProps) {
   }
 
   return (
-    <div
-      className={`flex h-screen w-full max-w-7xl ${theme === "dark" ? "dark" : ""}`}
-    >
+    <div className="flex h-screen w-full max-w-7xl">
       <Sidebar />
       <div className="w-full flex flex-1 flex-col">
-        <main className="flex-1 overflow-auto p-6 bg-white dark:bg-[#0F0F12]">
+        <main className="flex-1 overflow-auto p-6 bg-background">
           {children}
         </main>
       </div>

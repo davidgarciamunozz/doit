@@ -61,11 +61,11 @@ export default function IngredientsSection({
   return (
     <section className="space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="font-bold text-lg">Ingredients</h3>
+        <h3 className="font-bold text-lg text-card-foreground">Ingredients</h3>
         {ingredients.length === 0 && (
           <Link
             href="/dashboard/inventory/ingredients"
-            className="text-sm text-blue-600 hover:text-blue-800 underline"
+            className="text-sm text-primary hover:text-primary/80 underline"
           >
             Add ingredients first
           </Link>

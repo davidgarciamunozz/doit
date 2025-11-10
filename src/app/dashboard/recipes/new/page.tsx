@@ -133,11 +133,13 @@ export default function NewRecipePage() {
     <Layout>
       <form
         onSubmit={handleSubmit}
-        className="bg-[#FCFDFC] rounded-2xl shadow p-6 space-y-8 relative"
+        className="bg-card rounded-2xl shadow border border-border p-6 space-y-8 relative"
       >
         {/* Título */}
         <div className="flex justify-between items-center">
-          <h2 className="text-2xl font-bold">New recipe</h2>
+          <h2 className="text-2xl font-bold text-card-foreground">
+            New recipe
+          </h2>
           <Link href="/dashboard/recipes">
             <CloseButton />
           </Link>
@@ -145,7 +147,9 @@ export default function NewRecipePage() {
 
         {/* Recipe Information */}
         <section className="space-y-4">
-          <h3 className="font-bold text-lg">Recipe Information</h3>
+          <h3 className="font-bold text-lg text-card-foreground">
+            Recipe Information
+          </h3>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <Input
               placeholder="Recipe Name"
@@ -177,8 +181,12 @@ export default function NewRecipePage() {
         {/* Ingredients */}
         {loadingIngredients ? (
           <section className="space-y-4">
-            <h3 className="font-bold text-lg">Ingredients</h3>
-            <p className="text-sm text-gray-500">Cargando ingredientes...</p>
+            <h3 className="font-bold text-lg text-card-foreground">
+              Ingredients
+            </h3>
+            <p className="text-sm text-muted-foreground">
+              Cargando ingredientes...
+            </p>
           </section>
         ) : (
           <IngredientsSection
@@ -189,11 +197,13 @@ export default function NewRecipePage() {
 
         {/* Instructions */}
         <section className="space-y-4">
-          <h3 className="font-bold text-lg">Instructions</h3>
+          <h3 className="font-bold text-lg text-card-foreground">
+            Instructions
+          </h3>
           <div className="space-y-2">
             {instructions.map((instruction, index) => (
               <div key={index} className="flex items-center gap-3">
-                <span className="w-6 text-gray-500 font-mono">
+                <span className="w-6 text-muted-foreground font-mono">
                   {String(index + 1).padStart(2, "0")}
                 </span>
                 <Input
@@ -209,7 +219,7 @@ export default function NewRecipePage() {
           <button
             type="button"
             onClick={addInstruction}
-            className="px-4 py-2 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition-colors"
+            className="px-4 py-2 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded-lg hover:bg-green-200 dark:hover:bg-green-900/50 transition-colors"
           >
             Add step
           </button>
@@ -221,7 +231,7 @@ export default function NewRecipePage() {
             type="button"
             onClick={handleCancel}
             disabled={loading}
-            className="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors disabled:opacity-50"
+            className="px-6 py-2 bg-muted text-muted-foreground rounded-lg hover:bg-muted/80 transition-colors disabled:opacity-50"
           >
             Cancel
           </button>

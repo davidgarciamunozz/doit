@@ -60,6 +60,7 @@ export default function RecipesGrid({ initialRecipes }: RecipesGridProps) {
             portionSize={recipe.portion_size}
             price={recipe.price}
             preparationTime={recipe.preparation_time}
+            recipeIngredients={recipe.recipe_ingredients}
             onEdit={() => handleEdit(recipe)}
             onDelete={() => handleDelete(recipe)}
           />

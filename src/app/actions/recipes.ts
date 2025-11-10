@@ -3,10 +3,14 @@
 import { createClient } from "@/lib/supabase/server";
 import { Recipe } from "@/types/recipe";
 import { revalidatePath } from "next/cache";
+import { setRecipeIngredients, RecipeIngredient } from "./recipe-ingredients";
 
-export async function createRecipe(
-  recipeData: Omit<Recipe, "id" | "created_at" | "updated_at">,
-) {
+interface RecipeWithIngredients
+  extends Omit<Recipe, "id" | "created_at" | "updated_at"> {
+  recipe_ingredients?: RecipeIngredient[];
+}
+
+export async function createRecipe(recipeData: RecipeWithIngredients) {
   try {
     const supabase = await createClient();
 
@@ -23,12 +27,15 @@ export async function createRecipe(
       };
     }
 
+    // Extract recipe_ingredients if present
+    const { recipe_ingredients, ...recipeFields } = recipeData;
+
     // Insert the recipe
     const { data, error } = await supabase
       .from("recipes")
       .insert([
         {
-          ...recipeData,
+          ...recipeFields,
           user_id: user.id,
         },
       ])
@@ -41,6 +48,31 @@ export async function createRecipe(
         success: false,
         error: error.message,
       };
+    }
+
+    // If recipe_ingredients are provided, save them
+    if (recipe_ingredients && Array.isArray(recipe_ingredients) && data?.id) {
+      const validIngredients = recipe_ingredients.filter(
+        (ing): ing is RecipeIngredient =>
+          ing.ingredient_id !== undefined &&
+          ing.ingredient_id !== "" &&
+          ing.quantity > 0,
+      );
+
+      if (validIngredients.length > 0) {
+        const ingredientsResult = await setRecipeIngredients(
+          data.id,
+          validIngredients,
+        );
+
+        if (!ingredientsResult.success) {
+          console.error(
+            "Error setting recipe ingredients:",
+            ingredientsResult.error,
+          );
+          // Don't fail the whole operation, just log the error
+        }
+      }
     }
 
     // Revalidate the recipes page to show the new recipe
@@ -74,10 +106,23 @@ export async function getRecipes(): Promise<Recipe[]> {
       return [];
     }
 
-    // Fetch recipes for the current user
+    // Fetch recipes with their ingredients
     const { data, error } = await supabase
       .from("recipes")
-      .select("*")
+      .select(
+        `
+        *,
+        recipe_ingredients (
+          id,
+          ingredient_id,
+          quantity,
+          unit,
+          ingredients:ingredient_id (
+            name
+          )
+        )
+      `,
+      )
       .eq("user_id", user.id)
       .order("created_at", { ascending: false });
 
@@ -86,19 +131,47 @@ export async function getRecipes(): Promise<Recipe[]> {
       return [];
     }
 
-    return data || [];
+    interface SupabaseRecipeIngredient {
+      id: string;
+      ingredient_id: string;
+      quantity: number | string;
+      unit: string;
+      ingredients?: {
+        name: string;
+      } | null;
+    }
+
+    interface SupabaseRecipe extends Omit<Recipe, "recipe_ingredients"> {
+      recipe_ingredients?: SupabaseRecipeIngredient[] | null;
+    }
+
+    // Transform the data to match Recipe interface
+    return (
+      (data as SupabaseRecipe[])?.map((recipe) => ({
+        ...recipe,
+        recipe_ingredients: recipe.recipe_ingredients?.map((ri) => ({
+          id: ri.id,
+          ingredient_id: ri.ingredient_id,
+          quantity: parseFloat(ri.quantity.toString()),
+          unit: ri.unit,
+          ingredient_name: ri.ingredients?.name,
+        })),
+      })) || []
+    );
   } catch (error) {
     console.error("Unexpected error fetching recipes:", error);
     return [];
   }
 }
 
-export async function updateRecipe(
-  id: string,
-  recipeData: Partial<
+interface RecipeUpdateData
+  extends Partial<
     Omit<Recipe, "id" | "created_at" | "updated_at" | "user_id">
-  >,
-) {
+  > {
+  recipe_ingredients?: RecipeIngredient[];
+}
+
+export async function updateRecipe(id: string, recipeData: RecipeUpdateData) {
   try {
     const supabase = await createClient();
 
@@ -115,10 +188,13 @@ export async function updateRecipe(
       };
     }
 
+    // Extract recipe_ingredients if present
+    const { recipe_ingredients, ...recipeFields } = recipeData;
+
     // Update the recipe
     const { data, error } = await supabase
       .from("recipes")
-      .update(recipeData)
+      .update(recipeFields)
       .eq("id", id)
       .eq("user_id", user.id)
       .select()
@@ -130,6 +206,31 @@ export async function updateRecipe(
         success: false,
         error: error.message,
       };
+    }
+
+    // If recipe_ingredients are provided, update them
+    if (recipe_ingredients !== undefined && data?.id) {
+      const validIngredients = Array.isArray(recipe_ingredients)
+        ? recipe_ingredients.filter(
+            (ing): ing is RecipeIngredient =>
+              ing.ingredient_id !== undefined &&
+              ing.ingredient_id !== "" &&
+              ing.quantity > 0,
+          )
+        : [];
+
+      const ingredientsResult = await setRecipeIngredients(
+        data.id,
+        validIngredients,
+      );
+
+      if (!ingredientsResult.success) {
+        console.error(
+          "Error updating recipe ingredients:",
+          ingredientsResult.error,
+        );
+        // Don't fail the whole operation, just log the error
+      }
     }
 
     revalidatePath("/dashboard/recipes");

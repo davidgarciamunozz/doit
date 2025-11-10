@@ -3,7 +3,10 @@
 import { useState, useEffect } from "react";
 import { Recipe } from "@/types/recipe";
 import { updateRecipe } from "@/app/actions/recipes";
+import { getIngredients } from "@/app/actions/ingredients";
+import { Ingredient } from "@/lib/types/inventory/types";
 import { Input } from "@/components/ui/input";
+import IngredientsSection from "@/components/recipes/form/IngredientsSection";
 import {
   Sheet,
   SheetContent,
@@ -26,6 +29,8 @@ export default function EditRecipeModal({
   onSuccess,
 }: EditRecipeModalProps) {
   const [loading, setLoading] = useState(false);
+  const [ingredients, setIngredients] = useState<Ingredient[]>([]);
+  const [loadingIngredients, setLoadingIngredients] = useState(true);
 
   // Recipe basic info state
   const [title, setTitle] = useState("");
@@ -33,11 +38,32 @@ export default function EditRecipeModal({
   const [preparationTime, setPreparationTime] = useState("");
   const [price, setPrice] = useState("");
 
-  // Ingredients state
-  const [ingredients, setIngredients] = useState("");
+  // Structured ingredients state
+  const [recipeIngredients, setRecipeIngredients] = useState<
+    Array<{
+      ingredient_id: string;
+      quantity: number;
+      unit: string;
+    }>
+  >([]);
 
   // Instructions state
   const [instructions, setInstructions] = useState<string[]>([]);
+
+  // Load ingredients on mount
+  useEffect(() => {
+    async function loadIngredients() {
+      try {
+        const data = await getIngredients();
+        setIngredients(data);
+      } catch (error) {
+        console.error("Error loading ingredients:", error);
+      } finally {
+        setLoadingIngredients(false);
+      }
+    }
+    loadIngredients();
+  }, []);
 
   // Update form when recipe changes
   useEffect(() => {
@@ -46,8 +72,21 @@ export default function EditRecipeModal({
       setPortionSize(recipe.portion_size || "");
       setPreparationTime(recipe.preparation_time || "");
       setPrice(recipe.price || "");
-      setIngredients(recipe.ingredients || "");
       setInstructions(recipe.instructions || ["", "", "", ""]);
+
+      // Load structured ingredients if available
+      if (recipe.recipe_ingredients && recipe.recipe_ingredients.length > 0) {
+        setRecipeIngredients(
+          recipe.recipe_ingredients.map((ri) => ({
+            ingredient_id: ri.ingredient_id,
+            quantity: ri.quantity,
+            unit: ri.unit,
+          })),
+        );
+      } else {
+        // Fallback to empty array
+        setRecipeIngredients([]);
+      }
     }
   }, [recipe]);
 
@@ -71,6 +110,16 @@ export default function EditRecipeModal({
       return;
     }
 
+    // Validate that at least one ingredient is selected
+    const validIngredients = recipeIngredients.filter(
+      (ing) => ing.ingredient_id && ing.quantity > 0,
+    );
+
+    if (validIngredients.length === 0) {
+      alert("Por favor agrega al menos un ingrediente");
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -78,14 +127,28 @@ export default function EditRecipeModal({
         (inst) => inst.trim() !== "",
       );
 
+      // Create a text representation of ingredients for backward compatibility
+      const ingredientsText = validIngredients
+        .map((ing) => {
+          const ingredient = ingredients.find(
+            (i) => i.id === ing.ingredient_id,
+          );
+          return ingredient
+            ? `${ingredient.name} (${ing.quantity} ${ing.unit})`
+            : "";
+        })
+        .filter(Boolean)
+        .join(", ");
+
       const result = await updateRecipe(recipe.id, {
         title,
         portion_size: portionSize,
         preparation_time: preparationTime,
         price,
-        ingredients: ingredients || "No ingredients specified",
+        ingredients: ingredientsText || "No ingredients specified",
         instructions:
           filteredInstructions.length > 0 ? filteredInstructions : undefined,
+        recipe_ingredients: validIngredients,
       });
 
       if (result.success) {
@@ -147,15 +210,20 @@ export default function EditRecipeModal({
             </section>
 
             {/* Ingredients */}
-            <section className="space-y-4">
-              <h3 className="font-bold text-lg">Ingredients</h3>
-              <Input
-                placeholder="List ingredients separated by commas (e.g., Flour, Butter, Sugar)"
-                value={ingredients}
-                onChange={(e) => setIngredients(e.target.value)}
-                className="w-full"
+            {loadingIngredients ? (
+              <section className="space-y-4">
+                <h3 className="font-bold text-lg">Ingredients</h3>
+                <p className="text-sm text-gray-500">
+                  Cargando ingredientes...
+                </p>
+              </section>
+            ) : (
+              <IngredientsSection
+                ingredients={ingredients}
+                initialIngredients={recipeIngredients}
+                onChange={setRecipeIngredients}
               />
-            </section>
+            )}
 
             {/* Instructions */}
             <section className="space-y-4">

@@ -14,6 +14,11 @@ type RecipeCardProps = {
   portionSize: string;
   price: string;
   preparationTime: string;
+  recipeIngredients?: Array<{
+    ingredient_name?: string;
+    quantity: number;
+    unit: string;
+  }>;
   onEdit?: () => void;
   onDelete?: () => void;
 };
@@ -24,9 +29,21 @@ export default function RecipeCard({
   portionSize,
   price,
   preparationTime,
+  recipeIngredients,
   onEdit,
   onDelete,
 }: RecipeCardProps) {
+  // Use structured ingredients if available, otherwise fallback to text
+  const displayIngredients =
+    recipeIngredients && recipeIngredients.length > 0
+      ? recipeIngredients
+          .map(
+            (ri) =>
+              `${ri.ingredient_name || "Unknown"} (${ri.quantity} ${ri.unit})`,
+          )
+          .join(", ")
+      : ingredients;
+
   return (
     <div className="relative bg-background/80 rounded-2xl shadow-md p-5 w-full max-w-sm ">
       {/* Botón de opciones (3 puntitos) */}
@@ -58,7 +75,7 @@ export default function RecipeCard({
       {/* Info */}
       <p className="text-sm text-gray-500">
         <span className="font-semibold">Ingredients: </span>
-        {ingredients}
+        {displayIngredients || "No ingredients specified"}
       </p>
       <p className="text-sm text-gray-500">
         <span className="font-semibold">Portion size: </span>

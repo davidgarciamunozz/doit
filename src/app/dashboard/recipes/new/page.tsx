@@ -1,17 +1,22 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Layout from "@/components/layout";
 import CloseButton from "@/components/buttons/close-button";
 import Link from "next/link";
 import { Input } from "@/components/ui/input";
 import { createRecipe } from "@/app/actions/recipes";
+import { getIngredients } from "@/app/actions/ingredients";
+import { Ingredient } from "@/lib/types/inventory/types";
+import IngredientsSection from "@/components/recipes/form/IngredientsSection";
 import { toast } from "sonner";
 
 export default function NewRecipePage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [ingredients, setIngredients] = useState<Ingredient[]>([]);
+  const [loadingIngredients, setLoadingIngredients] = useState(true);
 
   // Recipe basic info state
   const [title, setTitle] = useState("");
@@ -19,11 +24,33 @@ export default function NewRecipePage() {
   const [preparationTime, setPreparationTime] = useState("");
   const [price, setPrice] = useState("");
 
-  // Ingredients state - simplified for now
-  const [ingredients, setIngredients] = useState("");
+  // Structured ingredients state
+  const [recipeIngredients, setRecipeIngredients] = useState<
+    Array<{
+      ingredient_id: string;
+      quantity: number;
+      unit: string;
+    }>
+  >([]);
 
   // Instructions state
   const [instructions, setInstructions] = useState(["", "", "", ""]);
+
+  // Load ingredients on mount
+  useEffect(() => {
+    async function loadIngredients() {
+      try {
+        const data = await getIngredients();
+        setIngredients(data);
+      } catch (error) {
+        console.error("Error loading ingredients:", error);
+        toast.error("Error al cargar ingredientes");
+      } finally {
+        setLoadingIngredients(false);
+      }
+    }
+    loadIngredients();
+  }, []);
 
   const handleInstructionChange = (index: number, value: string) => {
     const newInstructions = [...instructions];
@@ -43,6 +70,16 @@ export default function NewRecipePage() {
       return;
     }
 
+    // Validate that at least one ingredient is selected
+    const validIngredients = recipeIngredients.filter(
+      (ing) => ing.ingredient_id && ing.quantity > 0,
+    );
+
+    if (validIngredients.length === 0) {
+      toast.error("Por favor agrega al menos un ingrediente");
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -50,17 +87,31 @@ export default function NewRecipePage() {
         (inst) => inst.trim() !== "",
       );
 
+      // Create a text representation of ingredients for backward compatibility
+      const ingredientsText = validIngredients
+        .map((ing) => {
+          const ingredient = ingredients.find(
+            (i) => i.id === ing.ingredient_id,
+          );
+          return ingredient
+            ? `${ingredient.name} (${ing.quantity} ${ing.unit})`
+            : "";
+        })
+        .filter(Boolean)
+        .join(", ");
+
       const result = await createRecipe({
         title,
         portion_size: portionSize,
         preparation_time: preparationTime,
         price,
-        ingredients: ingredients || "No ingredients specified",
+        ingredients: ingredientsText || "No ingredients specified",
         instructions:
           filteredInstructions.length > 0 ? filteredInstructions : undefined,
+        recipe_ingredients: validIngredients,
       });
 
-      if (result.success) {
+      if (result.success && result.data?.id) {
         toast.success("¡Receta creada exitosamente!");
         router.push("/dashboard/recipes");
       } else {
@@ -124,15 +175,17 @@ export default function NewRecipePage() {
         </section>
 
         {/* Ingredients */}
-        <section className="space-y-4">
-          <h3 className="font-bold text-lg">Ingredients</h3>
-          <Input
-            placeholder="List ingredients separated by commas (e.g., Flour, Butter, Sugar)"
-            value={ingredients}
-            onChange={(e) => setIngredients(e.target.value)}
-            className="w-full"
+        {loadingIngredients ? (
+          <section className="space-y-4">
+            <h3 className="font-bold text-lg">Ingredients</h3>
+            <p className="text-sm text-gray-500">Cargando ingredientes...</p>
+          </section>
+        ) : (
+          <IngredientsSection
+            ingredients={ingredients}
+            onChange={setRecipeIngredients}
           />
-        </section>
+        )}
 
         {/* Instructions */}
         <section className="space-y-4">

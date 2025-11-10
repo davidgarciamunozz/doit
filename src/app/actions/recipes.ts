@@ -5,9 +5,18 @@ import { Recipe } from "@/types/recipe";
 import { revalidatePath } from "next/cache";
 import { setRecipeIngredients, RecipeIngredient } from "./recipe-ingredients";
 
-interface RecipeWithIngredients
-  extends Omit<Recipe, "id" | "created_at" | "updated_at" | "user_id"> {
-  recipe_ingredients?: Omit<RecipeIngredient, "id">[];
+type BaseRecipeInput = Omit<
+  Recipe,
+  "id" | "created_at" | "updated_at" | "user_id" | "recipe_ingredients"
+>;
+
+type RecipeIngredientInput = Omit<
+  NonNullable<Recipe["recipe_ingredients"]>[number],
+  "id" | "ingredient_name"
+>;
+
+interface RecipeWithIngredients extends BaseRecipeInput {
+  recipe_ingredients?: RecipeIngredientInput[];
 }
 
 export async function createRecipe(recipeData: RecipeWithIngredients) {
@@ -164,11 +173,10 @@ export async function getRecipes(): Promise<Recipe[]> {
   }
 }
 
-interface RecipeUpdateData
-  extends Partial<
-    Omit<Recipe, "id" | "created_at" | "updated_at" | "user_id">
-  > {
-  recipe_ingredients?: RecipeIngredient[];
+type RecipeUpdateFields = Partial<BaseRecipeInput>;
+
+interface RecipeUpdateData extends RecipeUpdateFields {
+  recipe_ingredients?: RecipeIngredientInput[];
 }
 
 export async function updateRecipe(id: string, recipeData: RecipeUpdateData) {

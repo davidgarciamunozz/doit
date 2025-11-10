@@ -36,6 +36,7 @@ export interface Stock {
 }
 
 export interface Ingredient {
+  id?: string;
   name: string;
   extraLines?: Array<{
     label: string;
@@ -43,4 +44,7 @@ export interface Ingredient {
   }>;
   cost: Cost;
   stock: Stock;
+  user_id?: string;
+  created_at?: string;
+  updated_at?: string;
 }

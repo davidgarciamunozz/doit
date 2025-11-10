@@ -73,13 +73,13 @@ export async function getRecipeIngredients(
       ingredient_id: string;
       quantity: number | string;
       unit: string;
-      ingredients?: {
+      ingredients: {
         name: string;
       } | null;
     }
 
     return (
-      (data as SupabaseRecipeIngredient[])?.map((item) => ({
+      (data as SupabaseRecipeIngredient[] | null)?.map((item) => ({
         id: item.id,
         ingredient_id: item.ingredient_id,
         quantity: parseFloat(item.quantity.toString()),

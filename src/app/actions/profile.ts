@@ -35,9 +35,9 @@ export async function getUserProfile(): Promise<{
       profile: {
         id: user.id,
         email: user.email || "",
-        email_confirmed_at: user.email_confirmed_at,
+        email_confirmed_at: user.email_confirmed_at ?? null,
         created_at: user.created_at,
-        last_sign_in_at: user.last_sign_in_at,
+        last_sign_in_at: user.last_sign_in_at ?? null,
       },
     };
   } catch (error) {

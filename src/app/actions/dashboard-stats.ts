@@ -8,6 +8,8 @@ import {
 } from "@/lib/types/dashboard-stats";
 import { StockStatus } from "@/lib/types/inventory/types";
 
+import { calculateCost } from "@/lib/utils";
+
 export async function getDashboardStats(): Promise<DashboardStats> {
   try {
     const supabase = await createClient();
@@ -107,7 +109,9 @@ export async function getDashboardStats(): Promise<DashboardStats> {
     // Calculate total inventory value
     const { data: allIngredients } = await supabase
       .from("ingredients")
-      .select("stock_quantity, cost_price, cost_quantity")
+      .select(
+        "stock_quantity, stock_unit, cost_price, cost_quantity, cost_unit",
+      )
       .eq("user_id", user.id);
 
     const totalInventoryValue = (allIngredients || []).reduce(
@@ -116,13 +120,18 @@ export async function getDashboardStats(): Promise<DashboardStats> {
         ing: {
           cost_price: number;
           cost_quantity: number;
+          cost_unit: string;
           stock_quantity: number;
+          stock_unit: string;
         },
       ) => {
-        const costPerUnit =
-          parseFloat(ing.cost_price.toString()) /
-          parseFloat(ing.cost_quantity.toString());
-        const value = costPerUnit * parseFloat(ing.stock_quantity.toString());
+        const value = calculateCost(
+          parseFloat(ing.stock_quantity.toString()),
+          ing.stock_unit,
+          parseFloat(ing.cost_price.toString()),
+          parseFloat(ing.cost_quantity.toString()),
+          ing.cost_unit,
+        );
         return total + (value > 0 ? value : 0);
       },
       0,

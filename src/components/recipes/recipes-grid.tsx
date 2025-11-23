@@ -61,6 +61,7 @@ export default function RecipesGrid({ initialRecipes }: RecipesGridProps) {
             price={recipe.price}
             preparationTime={recipe.preparation_time}
             recipeIngredients={recipe.recipe_ingredients}
+            calculatedCost={recipe.calculated_cost}
             onEdit={() => handleEdit(recipe)}
             onDelete={() => handleDelete(recipe)}
           />

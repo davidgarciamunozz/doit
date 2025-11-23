@@ -100,6 +100,8 @@ export async function createRecipe(recipeData: RecipeWithIngredients) {
   }
 }
 
+import { calculateCost } from "@/lib/utils";
+
 export async function getRecipes(): Promise<Recipe[]> {
   try {
     const supabase = await createClient();
@@ -127,7 +129,10 @@ export async function getRecipes(): Promise<Recipe[]> {
           quantity,
           unit,
           ingredients:ingredient_id (
-            name
+            name,
+            cost_price,
+            cost_quantity,
+            cost_unit
           )
         )
       `,
@@ -147,6 +152,9 @@ export async function getRecipes(): Promise<Recipe[]> {
       unit: string;
       ingredients?: {
         name: string;
+        cost_price: number | string;
+        cost_quantity: number | string;
+        cost_unit: string;
       } | null;
     }
 
@@ -156,16 +164,47 @@ export async function getRecipes(): Promise<Recipe[]> {
 
     // Transform the data to match Recipe interface
     return (
-      (data as SupabaseRecipe[])?.map((recipe) => ({
-        ...recipe,
-        recipe_ingredients: recipe.recipe_ingredients?.map((ri) => ({
-          id: ri.id,
-          ingredient_id: ri.ingredient_id,
-          quantity: parseFloat(ri.quantity.toString()),
-          unit: ri.unit,
-          ingredient_name: ri.ingredients?.name,
-        })),
-      })) || []
+      (data as SupabaseRecipe[])?.map((recipe) => {
+        const recipeIngredients =
+          recipe.recipe_ingredients?.map((ri) => {
+            const costPrice = parseFloat(
+              (ri.ingredients?.cost_price || 0).toString(),
+            );
+            const costQuantity = parseFloat(
+              (ri.ingredients?.cost_quantity || 0).toString(),
+            );
+            const costUnit = ri.ingredients?.cost_unit || "g";
+            const quantity = parseFloat(ri.quantity.toString());
+
+            const ingredientCost = calculateCost(
+              quantity,
+              ri.unit,
+              costPrice,
+              costQuantity,
+              costUnit,
+            );
+
+            return {
+              id: ri.id,
+              ingredient_id: ri.ingredient_id,
+              quantity,
+              unit: ri.unit,
+              ingredient_name: ri.ingredients?.name,
+              ingredient_cost: ingredientCost,
+            };
+          }) || [];
+
+        const calculatedCost = recipeIngredients.reduce(
+          (sum, item) => sum + (item.ingredient_cost || 0),
+          0,
+        );
+
+        return {
+          ...recipe,
+          calculated_cost: calculatedCost,
+          recipe_ingredients: recipeIngredients,
+        };
+      }) || []
     );
   } catch (error) {
     console.error("Unexpected error fetching recipes:", error);

@@ -15,6 +15,7 @@ export interface Recipe {
   created_at?: string;
   updated_at?: string;
   user_id?: string;
+  calculated_cost?: number;
   // Structured ingredients from recipe_ingredients table
   recipe_ingredients?: Array<{
     id: string;
@@ -22,6 +23,7 @@ export interface Recipe {
     quantity: number;
     unit: string;
     ingredient_name?: string;
+    ingredient_cost?: number; // Calculated cost for this ingredient in this recipe
   }>;
 }
 

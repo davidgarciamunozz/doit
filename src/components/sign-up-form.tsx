@@ -51,9 +51,9 @@ export function SignUpForm() {
   };
 
   return (
-    <div className="min-h-screen min-w-screen flex">
+    <div className="w-full flex-1 flex flex-col lg:flex-row overflow-hidden rounded-lg border border-border shadow-sm">
       {/* Left side - Login Form */}
-      <div className="flex-1 flex items-center justify-center bg-background px-8">
+      <div className="flex-1 flex items-center justify-center bg-background px-4 py-12 sm:px-8 lg:py-0">
         <div className="w-full max-w-md space-y-8">
           <div className="space-y-2">
             <h1 className="text-3xl font-bold text-foreground">Sign Up</h1>
@@ -120,7 +120,7 @@ export function SignUpForm() {
       </div>
 
       {/* Right side - Brand/Logo */}
-      <div className="flex-1 bg-[#D3F36B] flex items-center justify-center">
+      <div className="hidden lg:flex flex-1 bg-[#D3F36B] items-center justify-center">
         <div className="text-center">
           <div className="flex items-center justify-center space-x-2">
             {/* Logo image */}

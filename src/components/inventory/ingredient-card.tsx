@@ -2,7 +2,7 @@
 
 import { MoreVertical } from "lucide-react";
 import ItemActionsMenu, { ItemAction } from "@/components/item-actions-menu";
-import { cn } from "@/lib/utils";
+import { cn, formatCurrency } from "@/lib/utils";
 import type { Ingredient } from "@/lib/types/inventory/types";
 import { statusOptions } from "./consts";
 
@@ -19,6 +19,8 @@ export default function IngredientCard({
     ingredient.stock.quantity < 0
       ? `${ingredient.stock.quantity} ${ingredient.stock.unit} missing`
       : `${ingredient.stock.quantity} ${ingredient.stock.unit}`;
+
+  const costLabel = `${formatCurrency(ingredient.cost.price)} / ${ingredient.cost.quantity} ${ingredient.cost.unit}`;
 
   return (
     <div
@@ -54,14 +56,10 @@ export default function IngredientCard({
           <span className="text-muted-foreground">{quantityText}</span>
         </p>
 
-        {ingredient.cost.label && (
-          <p className="text-sm text-muted-foreground">
-            <span className="font-medium text-foreground">Price:</span>{" "}
-            <span className="text-muted-foreground">
-              {ingredient.cost.label}
-            </span>
-          </p>
-        )}
+        <p className="text-sm text-muted-foreground">
+          <span className="font-medium text-foreground">Price:</span>{" "}
+          <span className="text-muted-foreground">{costLabel}</span>
+        </p>
 
         {ingredient.extraLines?.map((line, i) => (
           <p key={i} className="text-sm text-muted-foreground">

@@ -45,7 +45,7 @@ Our Services include:
 ### 6.1 Billing
 
 - Subscription fees are billed in advance through Paddle
-- Prices are listed in EUR/USD and may be subject to local taxes
+- Prices are listed in COP (Colombian Pesos) and may be subject to local taxes
 - We reserve the right to change pricing with 30 days notice
 
 ### 6.2 Cancellation

@@ -16,7 +16,7 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
-import { cn } from "@/lib/utils";
+import { cn, formatCurrency } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 
 import {
@@ -85,7 +85,7 @@ export default function IngredientFormSheet({
         label:
           values.cost.label && values.cost.label.trim().length > 0
             ? values.cost.label
-            : `${values.cost.price} per ${values.cost.quantity} ${values.cost.unit}`,
+            : `${formatCurrency(values.cost.price)} per ${values.cost.quantity} ${values.cost.unit}`,
       },
     });
     onOpenChange(false);
@@ -235,7 +235,7 @@ export default function IngredientFormSheet({
                 <Label htmlFor="label">Price label (optional)</Label>
                 <Input
                   id="label"
-                  placeholder='e.g., "0.5 USD per 100 g"'
+                  placeholder='e.g., "$ 2.000 per 100 g"'
                   value={values.cost.label ?? ""}
                   onChange={(e) => setCost("label", e.target.value)}
                 />

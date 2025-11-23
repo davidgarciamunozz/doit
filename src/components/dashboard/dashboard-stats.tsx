@@ -10,6 +10,7 @@ import {
   Clock,
 } from "lucide-react";
 import Link from "next/link";
+import { formatCurrency } from "@/lib/utils";
 
 interface DashboardStatsProps {
   stats: DashboardStatsType;
@@ -60,7 +61,7 @@ export default function DashboardStats({ stats }: DashboardStatsProps) {
         {/* Inventory Value */}
         <StatCard
           title="Inventory Value"
-          value={`$${stats.totalInventoryValue.toFixed(2)}`}
+          value={formatCurrency(stats.totalInventoryValue)}
           icon={<DollarSign className="h-6 w-6 text-purple-600" />}
           bgColor="bg-purple-50"
         />
@@ -151,7 +152,7 @@ export default function DashboardStats({ stats }: DashboardStatsProps) {
                   </div>
                   <div className="text-right">
                     <p className="text-sm font-semibold text-card-foreground">
-                      ${recipe.calculated_cost.toFixed(2)}
+                      {formatCurrency(recipe.calculated_cost)}
                     </p>
                     <p className="text-xs text-muted-foreground">Cost</p>
                   </div>

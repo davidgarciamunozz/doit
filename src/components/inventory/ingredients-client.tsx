@@ -9,7 +9,7 @@ import SearchBar from "@/components/global/search-bar";
 import StatusFilter from "@/components/inventory/stock-filter";
 import AddButton from "@/components/buttons/add-button";
 import IngredientFormSheet from "@/components/inventory/ingredient-form-sheet";
-import { Ingredient } from "@/lib/types/inventory/types";
+import { Ingredient, StockStatus } from "@/lib/types/inventory/types";
 import { emptyIngredient } from "@/components/inventory/consts";
 import {
   createIngredient,
@@ -32,9 +32,22 @@ export default function IngredientsClient({
   const [mode, setMode] = useState<Mode>("create");
   const [initialValues, setInitialValues] =
     useState<Ingredient>(emptyIngredient);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [stockFilter, setStockFilter] = useState<"all" | StockStatus>("all");
 
-  // Filter ingredients (search and status filter will be implemented in future)
-  const filteredIngredients = initialIngredients;
+  // Filter ingredients by search query and stock status
+  const filteredIngredients = initialIngredients.filter((ingredient) => {
+    // Filter by search query
+    const matchesSearch =
+      !searchQuery.trim() ||
+      ingredient.name.toLowerCase().includes(searchQuery.toLowerCase().trim());
+
+    // Filter by stock status
+    const matchesStock =
+      stockFilter === "all" || ingredient.stock.status === stockFilter;
+
+    return matchesSearch && matchesStock;
+  });
 
   const getActions = (ingredient: Ingredient): ItemAction[] => [
     {
@@ -151,8 +164,8 @@ export default function IngredientsClient({
 
       {/* Filtros */}
       <div className="flex items-center gap-3">
-        <SearchBar />
-        <StatusFilter />
+        <SearchBar value={searchQuery} onChange={setSearchQuery} />
+        <StatusFilter value={stockFilter} onChange={setStockFilter} />
       </div>
 
       {/* Empty State */}

@@ -7,19 +7,30 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { StockStatus } from "@/lib/types/inventory/types";
 
-export default function StockFilter() {
+type StockFilterValue = "all" | StockStatus;
+
+interface StockFilterProps {
+  value?: StockFilterValue;
+  onChange?: (value: StockFilterValue) => void;
+}
+
+export default function StockFilter({ value, onChange }: StockFilterProps) {
   return (
-    <Select>
+    <Select
+      value={value || "all"}
+      onValueChange={(val) => onChange?.(val as StockFilterValue)}
+    >
       <SelectTrigger className="w-[180px] rounded-full border border-border bg-background">
         <SelectValue placeholder="All" />
       </SelectTrigger>
       <SelectContent>
         <SelectItem value="all">All</SelectItem>
-        <SelectItem value="shortage">Shortage</SelectItem>
-        <SelectItem value="unavailable">Unavailable</SelectItem>
-        <SelectItem value="low">Low stock</SelectItem>
-        <SelectItem value="unavailable">Available</SelectItem>
+        <SelectItem value={StockStatus.available}>Available</SelectItem>
+        <SelectItem value={StockStatus.low}>Low stock</SelectItem>
+        <SelectItem value={StockStatus.shortage}>Shortage</SelectItem>
+        <SelectItem value={StockStatus.unavailable}>Unavailable</SelectItem>
       </SelectContent>
     </Select>
   );

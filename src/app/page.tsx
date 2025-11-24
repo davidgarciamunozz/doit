@@ -6,7 +6,10 @@ import { Button } from "@/components/ui/button";
 export default function Home() {
   return (
     <>
-      <main className="relative w-full flex items-center justify-center min-h-[400px] sm:min-h-[500px] md:min-h-[600px] lg:min-h-[700px]">
+      <main
+        className="relative w-full flex items-center justify-center 
+       min-h-[500px] sm:min-h-[550px] md:min-h-[600px] lg:min-h-[650px] xl:min-h-[700px]"
+      >
         {/* Background Image */}
         <div className="absolute inset-0 z-0">
           <Image
@@ -17,15 +20,28 @@ export default function Home() {
             priority
           />
         </div>
-
         {/* Content Overlay */}
-        <div className="relative z-10 px-4 sm:px-6 lg:px-8 max-w-5xl w-full flex flex-col items-center text-center pt-20 sm:pt-24 md:pt-32 lg:pt-40">
-          <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-black leading-tight mb-3 sm:mb-4 md:mb-5">
+        <div
+          className="
+    relative z-10 px-4 sm:px-6 lg:px-8 max-w-5xl w-full
+    flex flex-col items-center text-center
+    pt-6 sm:pt-8 md:pt-10 lg:pt-12
+    -mt-32 sm:-mt-40 md:-mt-52 lg:-mt-64
+  "
+        >
+          <h1
+            className="
+      text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl
+      font-bold text-black leading-tight
+      mb-2 sm:mb-3 md:mb-4
+    "
+          >
             Finanzas simplificadas
             <br />
             <span className="font-normal text-black">para</span>{" "}
             <span className="text-[#D3F36B]">pastelerias</span>
           </h1>
+
           <p className="text-xs sm:text-sm md:text-base lg:text-lg text-[#827E94] max-w-2xl px-2 sm:px-4">
             Gestiona los ingresos y gastos de tu pastelería de manera sencilla.
             Genera reportes financieros y obtén insights valiosos para hacer

@@ -130,11 +130,13 @@ export function AddOrderDialog({
                       <SelectValue placeholder="Select recipe" />
                     </SelectTrigger>
                     <SelectContent>
-                      {recipes.map((recipe) => (
-                        <SelectItem key={recipe.id} value={recipe.id}>
-                          {recipe.title}
-                        </SelectItem>
-                      ))}
+                      {recipes
+                        .filter((recipe) => recipe.id)
+                        .map((recipe) => (
+                          <SelectItem key={recipe.id} value={recipe.id!}>
+                            {recipe.title}
+                          </SelectItem>
+                        ))}
                     </SelectContent>
                   </Select>
                 </div>

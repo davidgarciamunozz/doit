@@ -7,12 +7,9 @@ export default async function IngredientsPage() {
 
   return (
     <Layout>
-      <main className="w-full">
-        <div className="mx-auto max-w-6xl p-6 lg:p-8 space-y-6">
-          {/* Header */}
-          <IngredientsClient initialIngredients={ingredients} />
-        </div>
-      </main>
+      <div className="w-full">
+        <IngredientsClient initialIngredients={ingredients} />
+      </div>
     </Layout>
   );
 }

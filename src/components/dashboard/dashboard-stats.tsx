@@ -11,12 +11,17 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { formatCurrency } from "@/lib/utils";
+import { ReactNode } from "react";
 
 interface DashboardStatsProps {
   stats: DashboardStatsType;
+  children?: ReactNode;
 }
 
-export default function DashboardStats({ stats }: DashboardStatsProps) {
+export default function DashboardStats({
+  stats,
+  children,
+}: DashboardStatsProps) {
   return (
     <div className="w-full space-y-6">
       {/* Header */}
@@ -66,6 +71,9 @@ export default function DashboardStats({ stats }: DashboardStatsProps) {
           bgColor="bg-purple-50"
         />
       </div>
+
+      {/* Widgets Section - Inserted here */}
+      {children && <div>{children}</div>}
 
       {/* Two Column Layout */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

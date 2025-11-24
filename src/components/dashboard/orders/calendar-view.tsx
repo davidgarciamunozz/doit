@@ -169,9 +169,15 @@ export function CalendarView({
                     <div
                       key={order.id}
                       className="text-[10px] sm:text-xs px-1 sm:px-1.5 py-0.5 sm:py-1 rounded bg-primary/10 text-primary border border-primary/20 truncate font-medium"
+                      title={
+                        order.customer_name
+                          ? `${order.customer_name} - ${order.items?.length} ${order.items?.length === 1 ? "item" : "items"}`
+                          : `${order.items?.length} ${order.items?.length === 1 ? "item" : "items"}`
+                      }
                     >
-                      {order.items?.length}{" "}
-                      {order.items?.length === 1 ? "item" : "items"}
+                      {order.customer_name
+                        ? order.customer_name
+                        : `${order.items?.length} ${order.items?.length === 1 ? "item" : "items"}`}
                     </div>
                   ))}
                   {dayOrders.length > 2 && (

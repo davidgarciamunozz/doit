@@ -98,6 +98,7 @@ export async function createOrder(input: CreateOrderInput) {
         {
           user_id: user.id,
           delivery_date: input.delivery_date,
+          customer_name: input.customer_name || null,
           status: "pending",
         },
       ])
@@ -433,6 +434,72 @@ export async function completeOrder(orderId: string) {
     return {
       success: false,
       error: "Error inesperado al completar la orden",
+    };
+  }
+}
+
+export async function cancelOrder(orderId: string) {
+  try {
+    const supabase = await createClient();
+
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser();
+
+    if (userError || !user) {
+      return {
+        success: false,
+        error: "Usuario no autenticado",
+      };
+    }
+
+    // Check if order exists and belongs to user
+    const { data: order, error: orderError } = await supabase
+      .from("orders")
+      .select("id, status")
+      .eq("id", orderId)
+      .eq("user_id", user.id)
+      .single();
+
+    if (orderError || !order) {
+      console.error("Error fetching order for cancellation:", orderError);
+      return { success: false, error: "Orden no encontrada" };
+    }
+
+    if (order.status === "cancelled") {
+      return { success: false, error: "Esta orden ya está cancelada" };
+    }
+
+    if (order.status === "completed") {
+      return {
+        success: false,
+        error: "No se puede cancelar una orden completada",
+      };
+    }
+
+    // Update order status to cancelled
+    const { error: updateError } = await supabase
+      .from("orders")
+      .update({ status: "cancelled" })
+      .eq("id", orderId);
+
+    if (updateError) {
+      console.error("Error updating order status:", updateError);
+      return {
+        success: false,
+        error: "Error al cancelar la orden",
+      };
+    }
+
+    revalidatePath("/dashboard/orders");
+
+    return { success: true };
+  } catch (error) {
+    console.error("Unexpected error cancelling order:", error);
+    return {
+      success: false,
+      error: "Error inesperado al cancelar la orden",
     };
   }
 }

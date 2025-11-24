@@ -8,12 +8,14 @@ type AddButtonProps = {
   label: string;
   onClick?: () => void;
   variant?: "primary" | "green" | "yellow" | "light-green";
+  type?: "button" | "submit" | "reset";
 };
 
 export default function AddButton({
   label,
   onClick,
   variant = "primary",
+  type = "button",
 }: AddButtonProps) {
   const baseStyles =
     "w-50 rounded-lg font-semibold px-6 py-3 flex items-center gap-2";
@@ -26,7 +28,11 @@ export default function AddButton({
   };
 
   return (
-    <Button onClick={onClick} className={clsx(baseStyles, variants[variant])}>
+    <Button
+      type={type}
+      onClick={onClick}
+      className={clsx(baseStyles, variants[variant])}
+    >
       <Plus size={18} />
       {label}
     </Button>

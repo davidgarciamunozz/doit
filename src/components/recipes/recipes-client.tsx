@@ -66,15 +66,22 @@ export default function RecipesClient({ initialRecipes }: RecipesClientProps) {
   return (
     <>
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-semibold text-foreground">Recipes</h2>
-        <Link href="/dashboard/recipes/new">
-          <AddButton label="Add new recipe" variant="primary" />
-        </Link>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4 mb-4 w-full">
+        <h2 className="text-xl sm:text-2xl font-semibold text-foreground shrink-0">
+          Recipes
+        </h2>
+        <div className="w-full sm:w-auto shrink-0">
+          <Link
+            href="/dashboard/recipes/new"
+            className="block w-full sm:w-auto"
+          >
+            <AddButton label="Add new recipe" variant="primary" />
+          </Link>
+        </div>
       </div>
 
       {/* Search Bar */}
-      <div className="flex-1 max-w-md">
+      <div className="w-full mb-6">
         <SearchBar
           value={searchQuery}
           onChange={setSearchQuery}

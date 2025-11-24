@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { Recipe } from "@/lib/types/recipe";
 import {
   Dialog,
@@ -42,6 +43,7 @@ export function AddOrderDialog({
   selectedDate,
   recipes,
 }: AddOrderDialogProps) {
+  const router = useRouter();
   const [items, setItems] = useState<OrderItemRow[]>([
     { recipeId: "", quantity: 1 },
   ]);
@@ -97,6 +99,9 @@ export function AddOrderDialog({
 
       if (result.success) {
         toast.success("Order created successfully");
+        // Wait a bit to ensure stock status updates are complete
+        await new Promise((resolve) => setTimeout(resolve, 500));
+        router.refresh(); // Refresh to update ingredient stock status
         onOpenChange(false);
       } else {
         toast.error(result.error || "Error creating order");

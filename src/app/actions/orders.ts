@@ -9,6 +9,7 @@ import {
   SupabaseOrderForCompletion,
 } from "@/lib/types/orders";
 import { revalidatePath } from "next/cache";
+import { updateIngredientsStockStatus } from "./ingredients";
 
 export async function getOrders(
   startDate: string,
@@ -135,9 +136,43 @@ export async function createOrder(input: CreateOrderInput) {
           error: "Error al agregar items a la orden",
         };
       }
+
+      // 3. Get all ingredient IDs affected by this order
+      const recipeIds = input.items.map((item) => item.recipe_id);
+      const { data: recipeIngredients } = await supabase
+        .from("recipe_ingredients")
+        .select("ingredient_id")
+        .in("recipe_id", recipeIds);
+
+      if (recipeIngredients && recipeIngredients.length > 0) {
+        const ingredientIds = [
+          ...new Set(
+            recipeIngredients
+              .map((ri) => ri.ingredient_id)
+              .filter((id): id is string => id !== null),
+          ),
+        ];
+
+        // Wait a moment to ensure the order is fully committed to the database
+        await new Promise((resolve) => setTimeout(resolve, 200));
+
+        // Update stock status for all affected ingredients
+        const updateResult = await updateIngredientsStockStatus(ingredientIds);
+        if (!updateResult.success) {
+          console.error(
+            "Error updating stock status after order creation:",
+            updateResult.error,
+          );
+        } else {
+          console.log(
+            `Successfully updated stock status for ${ingredientIds.length} ingredients after order creation`,
+          );
+        }
+      }
     }
 
     revalidatePath("/dashboard/orders");
+    revalidatePath("/dashboard/inventory/ingredients");
 
     return {
       success: true,
@@ -168,6 +203,12 @@ export async function deleteOrder(id: string) {
       };
     }
 
+    // Get order items before deleting to update stock status
+    const { data: orderItems } = await supabase
+      .from("order_items")
+      .select("recipe_id")
+      .eq("order_id", id);
+
     const { error } = await supabase
       .from("orders")
       .delete()
@@ -182,7 +223,29 @@ export async function deleteOrder(id: string) {
       };
     }
 
+    // Update stock status for affected ingredients
+    if (orderItems && orderItems.length > 0) {
+      const recipeIds = orderItems.map((item) => item.recipe_id);
+      const { data: recipeIngredients } = await supabase
+        .from("recipe_ingredients")
+        .select("ingredient_id")
+        .in("recipe_id", recipeIds);
+
+      if (recipeIngredients && recipeIngredients.length > 0) {
+        const ingredientIds = [
+          ...new Set(
+            recipeIngredients
+              .map((ri) => ri.ingredient_id)
+              .filter((id): id is string => id !== null),
+          ),
+        ];
+
+        await updateIngredientsStockStatus(ingredientIds);
+      }
+    }
+
     revalidatePath("/dashboard/orders");
+    revalidatePath("/dashboard/inventory/ingredients");
     return { success: true };
   } catch (error) {
     console.error("Unexpected error deleting order:", error);
@@ -394,20 +457,45 @@ export async function completeOrder(orderId: string) {
       });
     });
 
-    // 3. Perform updates
+    // 3. Perform updates - decrease stock quantity
+    const affectedIngredientIds: string[] = [];
     for (const [ingId, amountUsed] of updates.entries()) {
-      const { data: currentIng } = await supabase
+      const { data: currentIng, error: fetchError } = await supabase
         .from("ingredients")
         .select("stock_quantity")
         .eq("id", ingId)
+        .eq("user_id", user.id)
         .single();
 
+      if (fetchError) {
+        console.error(
+          `Error fetching ingredient ${ingId} for stock update:`,
+          fetchError,
+        );
+        continue;
+      }
+
       if (currentIng) {
-        const newStock = Math.max(0, currentIng.stock_quantity - amountUsed);
-        await supabase
+        const currentStock = parseFloat(currentIng.stock_quantity.toString());
+        const newStock = Math.max(0, currentStock - amountUsed);
+
+        const { error: updateError } = await supabase
           .from("ingredients")
           .update({ stock_quantity: newStock })
-          .eq("id", ingId);
+          .eq("id", ingId)
+          .eq("user_id", user.id);
+
+        if (updateError) {
+          console.error(
+            `Error updating stock quantity for ingredient ${ingId}:`,
+            updateError,
+          );
+        } else {
+          console.log(
+            `✅ Decreased stock for ingredient ${ingId}: ${currentStock} → ${newStock} (used ${amountUsed})`,
+          );
+          affectedIngredientIds.push(ingId);
+        }
       }
     }
 
@@ -415,7 +503,8 @@ export async function completeOrder(orderId: string) {
     const { error: updateError } = await supabase
       .from("orders")
       .update({ status: "completed" })
-      .eq("id", orderId);
+      .eq("id", orderId)
+      .eq("user_id", user.id);
 
     if (updateError) {
       console.error("Error updating order status:", updateError);
@@ -423,6 +512,26 @@ export async function completeOrder(orderId: string) {
         success: false,
         error: "Error al actualizar estado de la orden",
       };
+    }
+
+    // 5. Wait a moment to ensure stock quantity updates are committed
+    if (affectedIngredientIds.length > 0) {
+      await new Promise((resolve) => setTimeout(resolve, 300));
+
+      // Update stock status for all affected ingredients after stock decrease
+      const statusUpdateResult = await updateIngredientsStockStatus(
+        affectedIngredientIds,
+      );
+      if (!statusUpdateResult.success) {
+        console.error(
+          "Error updating stock status after order completion:",
+          statusUpdateResult.error,
+        );
+      } else {
+        console.log(
+          `✅ Updated stock status for ${affectedIngredientIds.length} ingredients after order completion`,
+        );
+      }
     }
 
     revalidatePath("/dashboard/orders");
@@ -478,6 +587,12 @@ export async function cancelOrder(orderId: string) {
       };
     }
 
+    // Get order items before cancelling to update stock status
+    const { data: orderItems } = await supabase
+      .from("order_items")
+      .select("recipe_id")
+      .eq("order_id", orderId);
+
     // Update order status to cancelled
     const { error: updateError } = await supabase
       .from("orders")
@@ -492,7 +607,29 @@ export async function cancelOrder(orderId: string) {
       };
     }
 
+    // Update stock status for affected ingredients
+    if (orderItems && orderItems.length > 0) {
+      const recipeIds = orderItems.map((item) => item.recipe_id);
+      const { data: recipeIngredients } = await supabase
+        .from("recipe_ingredients")
+        .select("ingredient_id")
+        .in("recipe_id", recipeIds);
+
+      if (recipeIngredients && recipeIngredients.length > 0) {
+        const ingredientIds = [
+          ...new Set(
+            recipeIngredients
+              .map((ri) => ri.ingredient_id)
+              .filter((id): id is string => id !== null),
+          ),
+        ];
+
+        await updateIngredientsStockStatus(ingredientIds);
+      }
+    }
+
     revalidatePath("/dashboard/orders");
+    revalidatePath("/dashboard/inventory/ingredients");
 
     return { success: true };
   } catch (error) {

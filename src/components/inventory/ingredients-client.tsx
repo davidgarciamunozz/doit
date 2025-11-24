@@ -153,19 +153,27 @@ export default function IngredientsClient({
   return (
     <>
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-semibold text-foreground">Ingredients</h2>
-        <AddButton
-          label="Add New Ingredient"
-          variant="primary"
-          onClick={openCreateForm}
-        />
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4 mb-4 w-full">
+        <h2 className="text-xl sm:text-2xl font-semibold text-foreground shrink-0">
+          Ingredients
+        </h2>
+        <div className="w-full sm:w-auto shrink-0">
+          <AddButton
+            label="Add New Ingredient"
+            variant="primary"
+            onClick={openCreateForm}
+          />
+        </div>
       </div>
 
       {/* Filtros */}
-      <div className="flex items-center gap-3">
-        <SearchBar value={searchQuery} onChange={setSearchQuery} />
-        <StatusFilter value={stockFilter} onChange={setStockFilter} />
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 mb-6 w-full">
+        <div className="flex-1 min-w-0">
+          <SearchBar value={searchQuery} onChange={setSearchQuery} />
+        </div>
+        <div className="w-full sm:w-auto shrink-0">
+          <StatusFilter value={stockFilter} onChange={setStockFilter} />
+        </div>
       </div>
 
       {/* Empty State */}

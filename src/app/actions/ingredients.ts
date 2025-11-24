@@ -3,6 +3,8 @@
 import { createClient } from "@/lib/supabase/server";
 import { Ingredient, StockStatus, Units } from "@/lib/types/inventory/types";
 import { revalidatePath } from "next/cache";
+import { getOrderRequirements } from "./orders";
+import { addDays, format } from "date-fns";
 
 // Database row type
 interface IngredientDbRow {
@@ -163,6 +165,36 @@ export async function getIngredients(): Promise<Ingredient[]> {
       return [];
     }
 
+    // Recalculate stock status for all ingredients to ensure they're up to date
+    // This ensures the status reflects current order requirements
+    if (data && data.length > 0) {
+      const ingredientIds = data.map((ing) => ing.id);
+      // Update stock status based on pending orders
+      const updateResult = await updateIngredientsStockStatus(ingredientIds);
+
+      if (!updateResult.success) {
+        console.error("Error updating stock status:", updateResult.error);
+        // Even if update fails, return the data we have
+        return (data || []).map(dbRowToIngredient);
+      }
+
+      // Wait a moment to ensure database update is committed
+      await new Promise((resolve) => setTimeout(resolve, 100));
+
+      // Fetch again to get updated status from database
+      const { data: updatedData, error: updateError } = await supabase
+        .from("ingredients")
+        .select("*")
+        .eq("user_id", user.id)
+        .order("name", { ascending: true });
+
+      if (!updateError && updatedData) {
+        return updatedData.map(dbRowToIngredient);
+      } else if (updateError) {
+        console.error("Error fetching updated ingredients:", updateError);
+      }
+    }
+
     return (data || []).map(dbRowToIngredient);
   } catch (error) {
     console.error("Unexpected error fetching ingredients:", error);
@@ -316,6 +348,219 @@ export async function deleteIngredient(id: string) {
   }
 }
 
+// Helper function to calculate stock status considering pending orders
+async function calculateStockStatus(
+  stockQuantity: number,
+  stockLow: number,
+  ingredientId: string,
+): Promise<StockStatus> {
+  // Get order requirements for the next 7 days
+  const today = new Date();
+  const nextWeek = addDays(today, 7);
+  const requirementsResult = await getOrderRequirements(
+    format(today, "yyyy-MM-dd"),
+    format(nextWeek, "yyyy-MM-dd"),
+  );
+
+  let requiredForOrders = 0;
+  if (requirementsResult.success && requirementsResult.data) {
+    const requirement = requirementsResult.data.find(
+      (req) => req.id === ingredientId,
+    );
+    if (requirement) {
+      requiredForOrders = requirement.required;
+    }
+  }
+
+  // Calculate available stock after orders
+  const availableAfterOrders = stockQuantity - requiredForOrders;
+
+  // Determine status based on available stock after orders
+  // Priority: unavailable > shortage > low > available
+  if (stockQuantity <= 0) {
+    return StockStatus.unavailable; // No physical stock
+  } else if (availableAfterOrders <= 0) {
+    return StockStatus.shortage; // Not enough for pending orders
+  } else if (stockQuantity <= stockLow) {
+    return StockStatus.low; // Below threshold
+  } else {
+    return StockStatus.available;
+  }
+}
+
+// Update stock status for a specific ingredient
+export async function updateIngredientStockStatus(ingredientId: string) {
+  try {
+    const supabase = await createClient();
+
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser();
+
+    if (userError || !user) {
+      return { success: false, error: "Usuario no autenticado" };
+    }
+
+    // Get current ingredient data
+    const { data: ingredient, error: fetchError } = await supabase
+      .from("ingredients")
+      .select("stock_quantity, stock_low")
+      .eq("id", ingredientId)
+      .eq("user_id", user.id)
+      .single();
+
+    if (fetchError || !ingredient) {
+      return { success: false, error: "Ingrediente no encontrado" };
+    }
+
+    const stockQuantity = parseFloat(ingredient.stock_quantity.toString());
+    const stockLow = parseFloat(ingredient.stock_low.toString());
+
+    // Calculate new status
+    const newStatus = await calculateStockStatus(
+      stockQuantity,
+      stockLow,
+      ingredientId,
+    );
+
+    // Update the ingredient
+    const { error: updateError } = await supabase
+      .from("ingredients")
+      .update({ stock_status: newStatus })
+      .eq("id", ingredientId)
+      .eq("user_id", user.id);
+
+    if (updateError) {
+      console.error("Error updating stock status:", updateError);
+      return { success: false, error: updateError.message };
+    }
+
+    return { success: true };
+  } catch (error) {
+    console.error("Unexpected error updating stock status:", error);
+    return { success: false, error: "Error inesperado" };
+  }
+}
+
+// Update stock status for multiple ingredients
+export async function updateIngredientsStockStatus(ingredientIds: string[]) {
+  try {
+    if (!ingredientIds || ingredientIds.length === 0) {
+      return { success: true }; // Nothing to update
+    }
+
+    const supabase = await createClient();
+
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser();
+
+    if (userError || !user) {
+      return { success: false, error: "Usuario no autenticado" };
+    }
+
+    // Get order requirements for the next 7 days
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Start of today
+    const nextWeek = addDays(today, 7);
+    const requirementsResult = await getOrderRequirements(
+      format(today, "yyyy-MM-dd"),
+      format(nextWeek, "yyyy-MM-dd"),
+    );
+
+    const requiredFromOrders = new Map<string, number>();
+    if (requirementsResult.success && requirementsResult.data) {
+      requirementsResult.data.forEach((req) => {
+        requiredFromOrders.set(req.id, req.required);
+      });
+    }
+
+    // Get all ingredients that need updating
+    const { data: ingredients, error: fetchError } = await supabase
+      .from("ingredients")
+      .select("id, stock_quantity, stock_low, stock_status")
+      .eq("user_id", user.id)
+      .in("id", ingredientIds);
+
+    if (fetchError) {
+      console.error("Error fetching ingredients:", fetchError);
+      return { success: false, error: fetchError.message };
+    }
+
+    if (!ingredients || ingredients.length === 0) {
+      return { success: true }; // No ingredients found
+    }
+
+    // Update each ingredient
+    let updatedCount = 0;
+    for (const ingredient of ingredients) {
+      const stockQuantity = parseFloat(ingredient.stock_quantity.toString());
+      const stockLow = parseFloat(ingredient.stock_low.toString());
+      const requiredForOrders = requiredFromOrders.get(ingredient.id) || 0;
+      const currentStatus = ingredient.stock_status;
+
+      const availableAfterOrders = stockQuantity - requiredForOrders;
+
+      let newStatus: StockStatus;
+      // Priority: unavailable > shortage > low > available
+      if (stockQuantity <= 0) {
+        newStatus = StockStatus.unavailable; // No stock at all
+      } else if (availableAfterOrders <= 0 && requiredForOrders > 0) {
+        newStatus = StockStatus.shortage; // Not enough for pending orders
+      } else if (
+        stockQuantity <= stockLow &&
+        stockLow > 0 &&
+        (requiredForOrders > stockQuantity || availableAfterOrders <= stockLow)
+      ) {
+        // Low stock AND (required for orders exceeds current stock OR available after orders is still low)
+        // This means: quedó muy bajo y no alcanza para el siguiente pedido
+        newStatus = StockStatus.low;
+      } else {
+        // Has enough stock for orders and above threshold, or no pending orders
+        // This means: sobró ingrediente y alcanza para futuros pedidos
+        newStatus = StockStatus.available;
+      }
+
+      // Only update if status has changed
+      if (currentStatus === newStatus) {
+        console.log(
+          `Status unchanged for ingredient ${ingredient.id}: ${newStatus} (${stockQuantity}g stock, ${requiredForOrders}g required)`,
+        );
+        continue;
+      }
+
+      const { error: updateError } = await supabase
+        .from("ingredients")
+        .update({ stock_status: newStatus })
+        .eq("id", ingredient.id)
+        .eq("user_id", user.id);
+
+      if (updateError) {
+        console.error(
+          `❌ Error updating stock status for ingredient ${ingredient.id}:`,
+          updateError,
+        );
+      } else {
+        updatedCount++;
+        console.log(
+          `✅ Updated stock status for ingredient ${ingredient.id}: ${stockQuantity}g stock, ${requiredForOrders}g required (${availableAfterOrders}g available), ${currentStatus} → ${newStatus}`,
+        );
+      }
+    }
+
+    console.log(
+      `Updated stock status for ${updatedCount} out of ${ingredients.length} ingredients`,
+    );
+
+    return { success: true };
+  } catch (error) {
+    console.error("Unexpected error updating stock statuses:", error);
+    return { success: false, error: "Error inesperado" };
+  }
+}
+
 // Adjust stock quantity (for inventory updates)
 export async function adjustIngredientStock(
   id: string,
@@ -355,17 +600,8 @@ export async function adjustIngredientStock(
     const newQuantity = parseFloat(currentData.stock_quantity) + quantityChange;
     const lowThreshold = parseFloat(currentData.stock_low);
 
-    // Determine new status
-    let newStatus: StockStatus;
-    if (newQuantity <= 0) {
-      newStatus = StockStatus.unavailable;
-    } else if (newQuantity < 0) {
-      newStatus = StockStatus.shortage;
-    } else if (newQuantity <= lowThreshold) {
-      newStatus = StockStatus.low;
-    } else {
-      newStatus = StockStatus.available;
-    }
+    // Calculate new status considering pending orders
+    const newStatus = await calculateStockStatus(newQuantity, lowThreshold, id);
 
     // Update the ingredient
     const { data, error } = await supabase

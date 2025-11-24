@@ -63,6 +63,7 @@ export interface SupabaseOrderItemWithRecipe extends SupabaseOrderItem {
   recipes: {
     id: string;
     title: string;
+    price: string;
     recipe_ingredients?: SupabaseRecipeIngredient[];
   } | null;
 }

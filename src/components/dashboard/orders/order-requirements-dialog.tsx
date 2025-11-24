@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Order } from "@/lib/types/orders";
 import {
   Dialog,
@@ -8,9 +9,13 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { getOrderRequirements, completeOrder } from "@/app/actions/orders";
+import {
+  getOrderRequirements,
+  completeOrder,
+  cancelOrder,
+} from "@/app/actions/orders";
 import { format } from "date-fns";
-import { Loader2, AlertTriangle, CheckCircle2, Check } from "lucide-react";
+import { Loader2, AlertTriangle, CheckCircle2, Check, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
@@ -40,10 +45,12 @@ export function OrderRequirementsDialog({
   date,
   orders,
 }: OrderRequirementsDialogProps) {
+  const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [requirements, setRequirements] = useState<IngredientRequirement[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [completingId, setCompletingId] = useState<string | null>(null);
+  const [cancellingId, setCancellingId] = useState<string | null>(null);
 
   const fetchRequirements = async () => {
     setLoading(true);
@@ -90,6 +97,26 @@ export function OrderRequirementsDialog({
     }
   };
 
+  const handleCancelOrder = async (orderId: string) => {
+    setCancellingId(orderId);
+    try {
+      const result = await cancelOrder(orderId);
+      if (result.success) {
+        toast.success("Order cancelled successfully");
+        // Refresh requirements
+        fetchRequirements();
+        // Refresh the page to update the orders list
+        router.refresh();
+      } else {
+        toast.error(result.error || "Error cancelling order");
+      }
+    } catch {
+      toast.error("Unexpected error");
+    } finally {
+      setCancellingId(null);
+    }
+  };
+
   const missingIngredients = requirements.filter((r) => r.missing > 0);
   const availableIngredients = requirements.filter((r) => r.missing <= 0);
 
@@ -112,32 +139,67 @@ export function OrderRequirementsDialog({
                     className="border rounded-lg p-3 bg-muted/30"
                   >
                     <div className="flex justify-between items-start mb-2">
-                      <Badge
-                        variant={
-                          order.status === "completed" ? "default" : "secondary"
-                        }
-                      >
-                        {order.status === "pending" ? "Pending" : order.status}
-                      </Badge>
+                      <div className="flex flex-col gap-1">
+                        <Badge
+                          variant={
+                            order.status === "completed"
+                              ? "default"
+                              : order.status === "cancelled"
+                                ? "destructive"
+                                : "secondary"
+                          }
+                        >
+                          {order.status === "pending"
+                            ? "Pending"
+                            : order.status === "completed"
+                              ? "Completed"
+                              : "Cancelled"}
+                        </Badge>
+                        {order.customer_name && (
+                          <span className="text-xs text-muted-foreground">
+                            {order.customer_name}
+                          </span>
+                        )}
+                      </div>
 
                       {order.status === "pending" && (
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="h-7 text-xs gap-1"
-                          disabled={
-                            completingId === order.id ||
-                            missingIngredients.length > 0
-                          }
-                          onClick={() => handleCompleteOrder(order.id)}
-                        >
-                          {completingId === order.id ? (
-                            <Loader2 className="h-3 w-3 animate-spin" />
-                          ) : (
-                            <Check className="h-3 w-3" />
-                          )}
-                          Complete
-                        </Button>
+                        <div className="flex gap-2">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="h-7 text-xs gap-1"
+                            disabled={
+                              cancellingId === order.id ||
+                              completingId === order.id ||
+                              missingIngredients.length > 0
+                            }
+                            onClick={() => handleCompleteOrder(order.id)}
+                          >
+                            {completingId === order.id ? (
+                              <Loader2 className="h-3 w-3 animate-spin" />
+                            ) : (
+                              <Check className="h-3 w-3" />
+                            )}
+                            Complete
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="h-7 text-xs gap-1 text-destructive hover:text-destructive"
+                            disabled={
+                              cancellingId === order.id ||
+                              completingId === order.id
+                            }
+                            onClick={() => handleCancelOrder(order.id)}
+                          >
+                            {cancellingId === order.id ? (
+                              <Loader2 className="h-3 w-3 animate-spin" />
+                            ) : (
+                              <X className="h-3 w-3" />
+                            )}
+                            Cancel
+                          </Button>
+                        </div>
                       )}
                     </div>
                     <div className="space-y-1">

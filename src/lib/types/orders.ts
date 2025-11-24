@@ -5,6 +5,7 @@ export interface Order {
   user_id: string;
   delivery_date: string; // ISO date string YYYY-MM-DD
   status: OrderStatus;
+  customer_name?: string | null;
   created_at: string;
   updated_at: string;
   items?: OrderItem[]; // Optional, populated when joined
@@ -25,6 +26,7 @@ export interface OrderItem {
 
 export interface CreateOrderInput {
   delivery_date: string;
+  customer_name?: string;
   items: {
     recipe_id: string;
     quantity: number;
@@ -50,6 +52,7 @@ export interface SupabaseOrder {
   user_id: string;
   delivery_date: string;
   status: OrderStatus;
+  customer_name?: string | null;
   created_at: string;
   updated_at: string;
   order_items: SupabaseOrderItem[];

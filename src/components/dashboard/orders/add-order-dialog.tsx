@@ -45,12 +45,14 @@ export function AddOrderDialog({
   const [items, setItems] = useState<OrderItemRow[]>([
     { recipeId: "", quantity: 1 },
   ]);
+  const [customerName, setCustomerName] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Reset items when dialog opens
   useEffect(() => {
     if (open) {
       setItems([{ recipeId: "", quantity: 1 }]);
+      setCustomerName("");
     }
   }, [open]);
 
@@ -86,6 +88,7 @@ export function AddOrderDialog({
     try {
       const result = await createOrder({
         delivery_date: format(selectedDate, "yyyy-MM-dd"),
+        customer_name: customerName.trim() || undefined,
         items: validItems.map((item) => ({
           recipe_id: item.recipeId,
           quantity: item.quantity,
@@ -115,6 +118,14 @@ export function AddOrderDialog({
         </DialogHeader>
 
         <div className="space-y-4 py-4">
+          <div className="space-y-2">
+            <Label>Customer Name</Label>
+            <Input
+              placeholder="Enter customer name"
+              value={customerName}
+              onChange={(e) => setCustomerName(e.target.value)}
+            />
+          </div>
           <div className="space-y-4">
             {items.map((item, index) => (
               <div key={index} className="flex items-end gap-3">
